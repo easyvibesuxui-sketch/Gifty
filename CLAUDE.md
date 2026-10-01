@@ -13,8 +13,9 @@ public/                 ← the ONLY folder that gets deployed. Nothing secret h
   hero.mp4 / hero.webm  Kling-generated background loop (720p, ~0.8MB)
   hero-poster.jpg       first frame, shown before video loads
 functions/api/gift.js   POST /api/gift — calls Gemini server-side
+functions/api/contact.js  POST /api/contact — stores contact-form messages in KV
 scripts/check-secrets.sh  scans for leaked keys; run before every commit
-wrangler.toml           Pages config: output dir, KV binding
+wrangler.toml           Pages config: output dir, KV bindings (RATE, MESSAGES)
 .dev.vars               local secrets (gitignored) — GEMINI_KEY=AQ....
 ```
 
@@ -54,6 +55,7 @@ Press `t` if a public tunnel opens and you don't want one.
 ## Deploy
 
 Pushing to `main` on GitHub deploys automatically (Cloudflare Pages Git integration, project `gifty`).
+Live: https://gifty-5r4.pages.dev
 
 Manual fallback:
 ```bash
@@ -74,7 +76,9 @@ On failure it returns `detail` with model + HTTP status (never the key).
 
 ## Not done yet
 
-- Contact form is front-end only — needs a real endpoint
+- Contact form stores messages in KV `giftly-messages` (read them in the Cloudflare
+  dashboard → Workers KV). No email notification yet — add one once there's a domain.
+- Contact page lists hello@/partners@/press@giftly.ai — those mailboxes don't exist
 - Products are 8 hard-coded items in `index.html` (`PROD` array); plan is a
   Supabase + pgvector catalogue of ~100k items
 - No custom domain yet
