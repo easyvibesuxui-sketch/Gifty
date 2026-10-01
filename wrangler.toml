@@ -15,3 +15,8 @@ id = "cc81d5d72b7542edb1bda4afc10e3c60"
 #
 # Local dev : npx wrangler pages dev
 # Deploy    : npx wrangler pages deploy --project-name gifty --branch main
+
+# Contact-form messages (read in dashboard: Workers KV → giftly-messages).
+[[kv_namespaces]]
+binding = "MESSAGES"
+id = "2d0ee2b4ab954492b1f280a36ae4953e"
