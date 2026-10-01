@@ -1,0 +1,23 @@
+# secrets — never commit
+.dev.vars
+.env
+.env.*
+!.dev.vars.example
+
+# cloudflare / wrangler
+.wrangler/
+.mf/
+
+# node
+node_modules/
+npm-debug.log*
+
+# os
+.DS_Store
+Thumbs.db
+
+# scratch
+*.log
+
+# local-only archive (old design, 14MB video master)
+.old-design/

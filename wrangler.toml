@@ -1,0 +1,17 @@
+name = "gifty"
+compatibility_date = "2026-09-11"
+
+# ONLY this folder is uploaded. Nothing secret may ever live inside it.
+pages_build_output_dir = "public"
+
+# Rate limiting for /api/gift (12 requests per minute per IP).
+[[kv_namespaces]]
+binding = "RATE"
+id = "cc81d5d72b7542edb1bda4afc10e3c60"
+
+# GEMINI_KEY is a secret:
+#   local  : .dev.vars (project root, NOT in public/)
+#   remote : npx wrangler pages secret put GEMINI_KEY --project-name gifty
+#
+# Local dev : npx wrangler pages dev
+# Deploy    : npx wrangler pages deploy --project-name gifty --branch main

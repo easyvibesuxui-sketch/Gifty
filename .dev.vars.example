@@ -1,0 +1,7 @@
+# Copy this file to `.dev.vars` and paste your real key there.
+# `.dev.vars` is gitignored — it is only used by `wrangler pages dev`.
+# In production the key lives as a Cloudflare secret, not in any file.
+
+# New Gemini keys (2026) look like: AQ.Ab8RN6...
+# Legacy keys look like:            AIzaSy...
+GEMINI_KEY=paste-your-key-here

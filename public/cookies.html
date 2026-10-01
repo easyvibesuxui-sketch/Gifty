@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cookie Policy — Giftly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cocoa:#2B1810;--cocoa-deep:#1F110B;--cocoa-soft:#3A2318;
+  --blaze:#FF4A1C;--blaze-dim:rgba(255,74,28,.16);
+  --cream:#F5F1E8;--cream-70:rgba(245,241,232,.7);--cream-45:rgba(245,241,232,.45);
+  --cream-22:rgba(245,241,232,.22);--cream-10:rgba(245,241,232,.1);
+  --lilac:#C4B5F0;--butter:#F5E960;--ink:#1A0E08;
+  --serif:"Instrument Serif",Georgia,serif;
+  --sans:"Hanken Grotesk",-apple-system,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);--spring:cubic-bezier(.34,1.4,.44,1);
+}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{background:var(--cocoa);color:var(--cream);font-family:var(--sans);
+  font-weight:300;line-height:1.6;overflow-x:hidden}
+::selection{background:var(--blaze);color:var(--cream)}
+:focus-visible{outline:2px solid var(--butter);outline-offset:3px;border-radius:3px}
+.skip{position:absolute;left:-9999px;z-index:10000;background:var(--butter);
+  color:var(--ink);padding:14px 24px;font-weight:600}
+.skip:focus{left:16px;top:16px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{
+  animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .blob{animation:none!important}}
+
+/* blobs */
+#blobs{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;opacity:.55}
+.blob{position:absolute}.blob svg{display:block;width:100%;height:100%}
+.b1{width:48vw;height:48vw;left:-14vw;top:4vh;animation:drift1 28s ease-in-out infinite}
+.b2{width:38vw;height:38vw;right:-10vw;top:56vh;animation:drift2 34s ease-in-out infinite}
+@keyframes drift1{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(3vw,-4vh) rotate(8deg)}}
+@keyframes drift2{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(-3vw,4vh) rotate(-7deg)}}
+.veil{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse 85% 70% at 50% 40%,transparent 30%,rgba(43,24,16,.75) 100%)}
+.grain{position:fixed;inset:0;z-index:190;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:180px}
+.page{position:relative;z-index:2}
+#prog{position:fixed;top:0;left:0;height:3px;width:0;z-index:150;background:var(--blaze)}
+
+/* nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:180;height:84px;display:flex;
+  align-items:center;justify-content:space-between;padding:0 clamp(20px,4vw,54px);
+  transition:all .5s var(--ease)}
+nav.stuck{height:66px;background:rgba(43,24,16,.9);backdrop-filter:blur(20px)}
+.logo{font-family:var(--serif);font-size:1.9rem;color:var(--cream);
+  text-decoration:none;letter-spacing:-.02em;transition:color .3s}
+.logo:hover{color:var(--blaze)}
+.nav-links{display:flex;gap:clamp(16px,3vw,40px);align-items:center;list-style:none}
+.nav-links a{font-size:.9rem;font-weight:400;color:var(--cream-70);text-decoration:none;
+  transition:color .3s;position:relative;padding:4px 0}
+.nav-links a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:1.5px;
+  background:var(--blaze);transition:width .35s var(--ease)}
+.nav-links a:hover{color:var(--cream)}.nav-links a:hover::after{width:100%}
+.nav-links a.now{color:var(--cream)}.nav-links a.now::after{width:100%;background:var(--cream)}
+
+/* page head */
+.phead{padding:150px clamp(20px,5vw,60px) clamp(40px,6vw,70px);max-width:1100px;margin:0 auto}
+.kicker{font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--blaze);margin-bottom:18px}
+.phead h1{font-family:var(--serif);font-size:clamp(2.3rem,6.5vw,5.2rem);line-height:.98;
+  letter-spacing:-.02em;margin-bottom:22px;max-width:16ch}
+.phead h1 em{font-style:italic;color:var(--blaze)}
+.phead .sub{font-size:1.05rem;color:var(--cream-45);line-height:1.8;max-width:52ch}
+
+/* content */
+.wrap{max-width:820px;margin:0 auto;padding:0 clamp(20px,5vw,60px) clamp(70px,10vh,130px)}
+.wrap.wide{max-width:1200px}
+.block{background:var(--cocoa-soft);border-radius:26px;padding:clamp(28px,4vw,46px);
+  margin-bottom:16px;transition:background .4s var(--ease)}
+.block:hover{background:#40271B}
+.block h2{font-family:var(--serif);font-size:clamp(1.5rem,3vw,2.1rem);line-height:1.1;
+  margin-bottom:16px;letter-spacing:-.01em}
+.block h3{font-family:var(--serif);font-size:1.3rem;margin:26px 0 10px}
+.block p{color:var(--cream-70);line-height:1.85;margin-bottom:14px;font-size:.95rem}
+.block p:last-child{margin-bottom:0}
+.block ul,.block ol{margin:14px 0 14px 20px;color:var(--cream-70)}
+.block li{margin-bottom:9px;line-height:1.8;font-size:.95rem}
+.block a{color:var(--blaze);text-decoration:none;border-bottom:1px solid transparent;
+  transition:border-color .25s}
+.block a:hover{border-bottom-color:var(--blaze)}
+.block strong,.block b{color:var(--cream);font-weight:600}
+.block code{background:rgba(245,241,232,.08);padding:2px 7px;border-radius:5px;
+  font-size:.88em;font-family:ui-monospace,monospace}
+
+/* prose (blog posts) */
+.prose{max-width:720px;margin:0 auto}
+.prose p{color:var(--cream-70);font-size:1.04rem;line-height:1.92;margin-bottom:22px}
+.prose h2{font-family:var(--serif);font-size:clamp(1.6rem,3.4vw,2.4rem);
+  line-height:1.08;margin:48px 0 18px;letter-spacing:-.015em}
+.prose h3{font-family:var(--serif);font-size:1.4rem;margin:32px 0 12px}
+.prose ul,.prose ol{margin:0 0 22px 22px;color:var(--cream-70)}
+.prose li{margin-bottom:11px;line-height:1.85;font-size:1.02rem}
+.prose a{color:var(--blaze);text-decoration:none;border-bottom:1px solid rgba(255,74,28,.35)}
+.prose a:hover{border-bottom-color:var(--blaze)}
+.prose strong{color:var(--cream);font-weight:600}
+.prose blockquote{border-left:3px solid var(--blaze);padding-left:24px;margin:30px 0;
+  font-family:var(--serif);font-style:italic;font-size:1.3rem;color:var(--cream);line-height:1.6}
+
+/* cta box */
+.cta-box{background:var(--blaze);border-radius:26px;padding:clamp(30px,4vw,48px);
+  margin:44px 0;text-align:center}
+.cta-box h3{font-family:var(--serif);font-size:clamp(1.5rem,3vw,2.2rem);
+  margin-bottom:12px;line-height:1.1}
+.cta-box p{color:rgba(245,241,232,.85);margin-bottom:24px;font-size:.98rem}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:11px;border:none;cursor:pointer;
+  font-family:var(--sans);font-size:.88rem;font-weight:600;text-decoration:none;
+  padding:17px 32px;border-radius:100px;transition:all .4s var(--spring)}
+.btn-fill{background:var(--blaze);color:var(--cream)}
+.btn-fill:hover{background:var(--butter);color:var(--ink);transform:translateY(-3px)}
+.btn-out{background:transparent;color:var(--cream);border:1.5px solid var(--cream-22)}
+.btn-out:hover{border-color:var(--cream);background:var(--cream);color:var(--ink);
+  transform:translateY(-3px)}
+.cta-box .btn-out{border-color:rgba(245,241,232,.5)}
+.cta-box .btn-out:hover{background:var(--cream);color:var(--ink)}
+
+.back{display:inline-flex;align-items:center;gap:9px;color:var(--cream-45);
+  text-decoration:none;font-size:.85rem;margin-bottom:34px;transition:all .3s}
+.back:hover{color:var(--blaze);gap:14px}
+
+/* blog cards */
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));
+  gap:clamp(14px,2vw,22px)}
+.bcard{background:var(--cocoa-soft);border-radius:26px;overflow:hidden;
+  text-decoration:none;color:var(--cream);display:flex;flex-direction:column;
+  transition:transform .5s var(--spring),background .4s}
+.bcard:hover{transform:translateY(-8px);background:var(--cream);color:var(--ink)}
+.bcard.feat{grid-column:span 2}
+@media(max-width:780px){.bcard.feat{grid-column:span 1}}
+.bcard-img{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;
+  font-size:3.4rem}
+.bcard:nth-child(3n+1) .bcard-img{background:var(--blaze)}
+.bcard:nth-child(3n+2) .bcard-img{background:var(--lilac)}
+.bcard:nth-child(3n+3) .bcard-img{background:var(--butter)}
+.bcard-bd{padding:26px 26px 28px;flex:1;display:flex;flex-direction:column}
+.bcard-cat{font-size:.66rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--blaze);margin-bottom:12px}
+.bcard-ti{font-family:var(--serif);font-size:1.5rem;line-height:1.1;margin-bottom:11px}
+.bcard.feat .bcard-ti{font-size:2rem}
+.bcard-ex{font-size:.88rem;opacity:.65;line-height:1.72;margin-bottom:20px;flex:1}
+.bcard-me{font-size:.74rem;opacity:.45;display:flex;gap:10px;align-items:center}
+
+/* filter rail */
+.rail{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:36px}
+.rf{background:transparent;border:1.5px solid var(--cream-22);color:var(--cream-45);
+  padding:10px 20px;border-radius:100px;cursor:pointer;font-family:var(--sans);
+  font-size:.8rem;font-weight:500;transition:all .3s var(--spring)}
+.rf:hover{border-color:var(--cream-70);color:var(--cream)}
+.rf.on{background:var(--cream);border-color:var(--cream);color:var(--ink)}
+
+/* forms */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}}
+.fg{margin-bottom:16px}
+.fg label{display:block;font-size:.75rem;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--cream-45);margin-bottom:8px}
+.fg input,.fg select,.fg textarea{width:100%;background:rgba(245,241,232,.06);
+  border:1.5px solid var(--cream-10);border-radius:14px;padding:15px 18px;
+  color:var(--cream);font-family:var(--sans);font-size:.95rem;font-weight:300;
+  transition:all .3s;outline:none}
+.fg textarea{min-height:140px;resize:vertical;line-height:1.7}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--blaze);
+  background:rgba(255,74,28,.06)}
+.fg input::placeholder,.fg textarea::placeholder{color:var(--cream-22)}
+.fg select option{background:var(--cocoa-soft);color:var(--cream)}
+.ok-msg{display:none;background:rgba(255,74,28,.12);border:1.5px solid var(--blaze);
+  border-radius:18px;padding:22px 26px;margin-top:18px;color:var(--cream)}
+.ok-msg.on{display:block}
+.ok-msg b{font-family:var(--serif);font-size:1.25rem;display:block;margin-bottom:6px;
+  font-weight:400}
+
+/* two column */
+.two{display:grid;grid-template-columns:1.4fr 1fr;gap:clamp(16px,2.5vw,28px);
+  align-items:start}
+@media(max-width:900px){.two{grid-template-columns:1fr}}
+
+/* footer */
+footer{border-top:1px solid var(--cream-10);padding:clamp(48px,7vw,74px) clamp(20px,5vw,60px) 0}
+.f-grid{max-width:1400px;margin:0 auto;display:grid;
+  grid-template-columns:1.8fr 1fr 1fr 1fr;gap:clamp(26px,4vw,52px);padding-bottom:48px}
+@media(max-width:900px){.f-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.f-grid{grid-template-columns:1fr;gap:32px}}
+.f-logo{font-family:var(--serif);font-size:2rem;color:var(--cream);text-decoration:none;
+  display:block;margin-bottom:15px}
+.f-tag{font-size:.86rem;color:var(--cream-45);line-height:1.8;max-width:33ch}
+.f-col h4{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--cream-22);margin-bottom:18px;font-weight:600}
+.f-col ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.f-col a{font-size:.86rem;color:var(--cream-45);text-decoration:none;transition:color .3s;
+  position:relative;display:inline-block}
+.f-col a::after{content:"";position:absolute;left:0;bottom:-2px;width:0;height:1px;
+  background:var(--blaze);transition:width .3s var(--ease)}
+.f-col a:hover{color:var(--cream)}.f-col a:hover::after{width:100%}
+.f-bot{max-width:1400px;margin:0 auto;border-top:1px solid var(--cream-10);padding:22px 0;
+  display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  font-size:.78rem;color:var(--cream-22)}
+.f-bot a{color:var(--cream-22);text-decoration:none}
+.f-bot a:hover{color:var(--cream-70)}
+.f-legal{display:flex;gap:18px;flex-wrap:wrap}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(30px);
+  transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.rv.in{opacity:1;transform:translateY(0)}
+
+/* ── carried over from the old pages ── */
+.bcard-me .bc-dot{width:3px;height:3px;border-radius:50%;background:currentColor;
+  opacity:.5;display:inline-block}
+.hb{height:1px;background:var(--cream-10);margin:0 0 34px}
+.post-hero-img{aspect-ratio:16/8;border-radius:26px;background:var(--blaze);
+  display:flex;align-items:center;justify-content:center;font-size:4rem;margin-bottom:40px}
+.highlight-box{background:var(--blaze);border-radius:22px;padding:28px 32px;margin:30px 0}
+.highlight-box p{color:rgba(245,241,232,.9);margin:0}
+.info-cards{display:flex;flex-direction:column;gap:12px}
+.info-card{background:var(--cocoa-soft);border-radius:20px;padding:24px 26px;
+  transition:background .35s var(--ease)}
+.info-card:hover{background:#40271B}
+.info-icon{display:none}
+.info-label{font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--blaze);margin-bottom:8px}
+.info-val{font-size:.95rem;color:var(--cream-70);line-height:1.7}
+.info-val a{color:var(--cream);text-decoration:none;border-bottom:1px solid var(--cream-22)}
+.info-val a:hover{border-bottom-color:var(--blaze);color:var(--blaze)}
+.faq-item{border-bottom:1px solid var(--cream-10);padding:22px 0}
+.faq-item:last-child{border-bottom:none}
+.faq-q{font-family:var(--serif);font-size:1.22rem;margin-bottom:9px;color:var(--cream)}
+.faq-a{font-size:.93rem;color:var(--cream-70);line-height:1.82}
+</style>
+</head>
+<body>
+<a href="#main" class="skip">Skip to content</a>
+<div class="grain"></div>
+<div id="prog"></div>
+
+<div id="blobs">
+  <div class="blob b1"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#FF4A1C" d="M45.7,-58.2C58.3,-49.4,67.3,-34.6,71.2,-18.4C75.1,-2.2,73.9,15.4,66.4,29.5C58.9,43.6,45.1,54.2,30.1,61.3C15.1,68.4,-1.1,72,-16.6,68.7C-32.1,65.4,-46.9,55.2,-57.4,41.4C-67.9,27.6,-74.1,10.2,-72.4,-6.3C-70.7,-22.8,-61.1,-38.4,-48.2,-47.6C-35.3,-56.8,-19.1,-59.6,-1.9,-57.3C15.3,-55,33.1,-67,45.7,-58.2Z" transform="translate(100 100)"/></svg></div>
+  <div class="blob b2"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#FF4A1C" d="M38.5,-52.8C50.9,-42.8,62.4,-31.9,67.3,-18.3C72.2,-4.7,70.5,11.6,63.8,25.3C57.1,39,45.4,50.1,32,56.9C18.6,63.7,3.5,66.2,-12.4,64.4C-28.3,62.6,-45,56.5,-55.9,44.6C-66.8,32.7,-71.9,15,-70.6,-1.7C-69.3,-18.4,-61.6,-34.1,-49.6,-44.7C-37.6,-55.3,-21.3,-60.8,-5.3,-58.3C10.7,-55.8,26.1,-62.8,38.5,-52.8Z" transform="translate(100 100)"/></svg></div>
+</div>
+<div class="veil"></div>
+
+<div class="page">
+<nav id="nav">
+  <a href="index.html" class="logo">Giftly</a>
+  <ul class="nav-links">
+    <li><a href="index.html#finder">Find</a></li>
+    <li><a href="index.html#curated">Curated</a></li>
+    <li><a href="blog.html">Journal</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+</nav>
+
+<header class="phead">
+  <div class="kicker">Legal</div>
+  <h1>Cookie <em>Policy</em></h1>
+  <p class="sub">Last updated: June 1, 2025. We use as few cookies as possible.</p>
+</header>
+
+<main id="main">
+<div class="wrap">
+<div class="hb"> &nbsp;Short version: We only use essential cookies and basic analytics. No advertising cookies. No cross-site tracking.</div>
+  <div class="block rv"><h2>What are cookies?</h2>
+    <p>Cookies are small text files stored in your browser when you visit a website. They help websites remember preferences and understand how visitors use the site. We use them minimally and responsibly.</p>
+  </div>
+  <div class="block rv"><h2>Essential cookies</h2>
+    <p>These cookies are required for the site to function. They cannot be disabled.</p>
+    <ul>
+      <li><strong style="color:#fff">Session cookie</strong> — Remembers your filter preferences during your visit (e.g., product category filter). Expires when you close the browser.</li>
+      <li><strong style="color:#fff">Security cookie</strong> — CSRF protection token. Required to protect form submissions. Expires with the session.</li>
+    </ul>
+  </div>
+  <div class="block rv"><h2>Analytics cookies</h2>
+    <p>We use Cloudflare Web Analytics, which is privacy-preserving and does not use cookies or fingerprinting. It gives us basic traffic data (page views, referrers) without identifying individual users. No cookie is set for analytics purposes.</p>
+  </div>
+  <div class="block rv"><h2>What we do NOT use</h2>
+    <ul>
+      <li>Advertising or retargeting cookies</li>
+      <li>Third-party tracking pixels (Facebook, Google Ads, etc.)</li>
+      <li>Cross-site tracking of any kind</li>
+      <li>Cookie-based user profiling</li>
+    </ul>
+  </div>
+  <div class="block rv"><h2>Managing cookies</h2>
+    <p>You can delete or block cookies in your browser settings at any time. Blocking essential cookies may affect site functionality. Since we don't use advertising or tracking cookies, blocking them has no effect on your Giftly experience beyond basic session features.</p>
+    <p>Questions? <a href="contact.html">Contact us</a> or email <a href="mailto:privacy@giftly.ai">privacy@giftly.ai</a>.</p>
+  </div>
+</div>
+</main>
+
+<footer>
+  <div class="f-grid">
+    <div>
+      <a href="index.html" class="f-logo">Giftly</a>
+      <p class="f-tag">AI-powered gift discovery for every person and every
+        occasion. 100,000 curated products. Free, forever.</p>
+    </div>
+    <div class="f-col"><h4>Occasions</h4><ul>
+      <li><a href="index.html#curated">Birthday</a></li>
+      <li><a href="index.html#curated">Anniversary</a></li>
+      <li><a href="index.html#curated">Christmas</a></li>
+      <li><a href="index.html#curated">Graduation</a></li></ul></div>
+    <div class="f-col"><h4>Company</h4><ul>
+      <li><a href="about.html">About</a></li><li><a href="blog.html">Journal</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="affiliate.html">Affiliates</a></li></ul></div>
+    <div class="f-col"><h4>Legal</h4><ul>
+      <li><a href="privacy.html">Privacy</a></li><li><a href="cookies.html">Cookies</a></li>
+      <li><a href="terms.html">Terms</a></li>
+      <li><a href="affiliate.html">Disclosure</a></li></ul></div>
+  </div>
+  <div class="f-bot">
+    <span>&copy; 2026 Giftly. Some links are affiliate links &mdash; we earn a
+      commission at no cost to you.</span>
+    <div class="f-legal"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a>
+      <a href="cookies.html">Cookies</a></div>
+  </div>
+</footer>
+</div>
+
+<script>
+const nav=document.getElementById('nav'),prog=document.getElementById('prog');
+addEventListener('scroll',()=>{
+  nav.classList.toggle('stuck',scrollY>60);
+  const m=document.body.scrollHeight-innerHeight;
+  prog.style.width=(m>0?(scrollY/m)*100:0)+'%';
+},{passive:true});
+const io=new IntersectionObserver(es=>{es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},
+  {threshold:.1,rootMargin:'0px 0px -50px 0px'});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+
+</script>
+</body>
+</html>
