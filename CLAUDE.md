@@ -1,8 +1,25 @@
 # Gifty — project guide for Claude Code
 
 AI gift finder. The user describes a person, Gemini suggests real products,
-links go to Amazon (affiliate). Static site + one serverless function on
-Cloudflare Pages.
+links go to Amazon (affiliate). Static site + serverless functions on
+Cloudflare Pages. Live: https://gifty-5r4.pages.dev
+
+**Read first:**
+- `docs/decisions.md` — accounts & resource IDs, why the design looks like this,
+  Gemini/Kling/Cloudflare gotchas, past security incidents. Read before touching
+  infrastructure, design or the AI call.
+- `docs/plan.md` — original architecture plan for the 100k-product catalogue.
+
+## How to work with the owner
+
+- Owner is Nodari. He writes in **Georgian** — answer in Georgian, short and clear.
+- He doesn't want to run commands himself. Do the whole loop: edit → run
+  `bash scripts/check-secrets.sh` → commit → `git push` → wait ~20s → verify on
+  the live site with `curl` (APIs) and say what changed.
+- Only stop for things that need him: signing in, approving OAuth/GitHub grants,
+  payments. Never ask him to paste API keys into chat.
+- If `git push` needs auth the first time, run `gh auth login` (web flow) and
+  walk him through the browser step.
 
 ## Layout
 
@@ -15,6 +32,8 @@ public/                 ← the ONLY folder that gets deployed. Nothing secret h
 functions/api/gift.js   POST /api/gift — calls Gemini server-side
 functions/api/contact.js  POST /api/contact — stores contact-form messages in KV
 scripts/check-secrets.sh  scans for leaked keys; run before every commit
+docs/decisions.md       history, resource IDs, gotchas
+docs/plan.md            original 100k-product architecture plan
 wrangler.toml           Pages config: output dir, KV bindings (RATE, MESSAGES)
 .dev.vars               local secrets (gitignored) — GEMINI_KEY=AQ....
 ```
@@ -44,6 +63,8 @@ Every page uses the same palette and type. Do not drift.
 - Body/UI: **Hanken Grotesk**
 - Big rounded corners (20–34px), pill buttons, orange SVG blobs drifting behind content, film grain overlay.
 - Hero: centred headline (max ~4.8rem), centred cream search bar, chips below, results render inside the hero.
+- Reference: studioloop.com. Background is a Kling-generated video (see `docs/decisions.md`).
+- Icons: outline SVG only. No emoji as icons.
 
 ## Run locally
 
@@ -74,6 +95,13 @@ npx wrangler pages secret put GEMINI_KEY --project-name gifty
 14s timeout per attempt. Override the model with a `GEMINI_MODEL` env var.
 On failure it returns `detail` with model + HTTP status (never the key).
 
+## Verify after every deploy
+
+```bash
+curl -s -X POST https://gifty-5r4.pages.dev/api/gift -H 'Content-Type: application/json' -d '{"q":"dad who loves coffee"}'
+for p in /.dev.vars /wrangler.toml /CLAUDE.md; do curl -sL https://gifty-5r4.pages.dev$p | grep -qE 'GEMINI_KEY=|AQ\.[A-Za-z0-9_-]{20,}' && echo "LEAK $p"; done
+```
+
 ## Not done yet
 
 - Contact form stores messages in KV `giftly-messages` (read them in the Cloudflare
@@ -82,4 +110,6 @@ On failure it returns `detail` with model + HTTP status (never the key).
 - Products are 8 hard-coded items in `index.html` (`PROD` array); plan is a
   Supabase + pgvector catalogue of ~100k items
 - No custom domain yet
+- Old Direct-Upload project `giftly` (giftly-aza.pages.dev) still exists — delete once confirmed unused
+- `public/index.html` stats (100K products, 2.4M gifts found) are placeholder numbers
 - Hero video master (14MB, 1080p) is kept locally in `.old-design/`, not in git
