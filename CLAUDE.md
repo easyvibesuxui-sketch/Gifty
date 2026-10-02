@@ -90,10 +90,15 @@ npx wrangler pages secret put GEMINI_KEY --project-name gifty
 
 ## Gemini
 
-`functions/api/gift.js` tries `gemini-3.5-flash-lite` first, falls back to
-`gemini-3.8-flash`. `thinkingLevel: LOW`, `responseMimeType: application/json`,
-14s timeout per attempt. Override the model with a `GEMINI_MODEL` env var.
-On failure it returns `detail` with model + HTTP status (never the key).
+`functions/api/gift.js` starts `gemini-3.5-flash-lite`; if it hasn't answered in
+6s (or fails) it also starts `gemini-3.8-flash` and returns whichever answers
+first (12s timeout per model). `thinkingLevel: LOW`, `responseMimeType: application/json`.
+Override the model with a `GEMINI_MODEL` env var.
+- Successful answers are kept in the edge cache (`caches.default`) for 24h, keyed
+  on the normalised query — response header `X-Cache: HIT|MISS`. Bump `/v1` in the
+  cache key after changing the prompt.
+- If every model fails it returns 200 with `fallback: true` and 4 hand-picked gifts
+  from the `CURATED` list (keyword-matched); the reasons go to `console.error`.
 
 ## Verify after every deploy
 

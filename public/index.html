@@ -663,7 +663,7 @@ async function run(){
         <div class="g-rt"><div class="g-pr">${esc(g.price)}</div>
           <div class="g-lk">Find it →</div></div></a>`).join('');
     out.innerHTML=`<div class="resp-head">
-        <div class="resp-meta">Giftly AI · Gemini</div>
+        <div class="resp-meta">${d.fallback?'Giftly · Hand-picked':'Giftly AI · Gemini'}</div>
         <div class="resp-txt">${esc(d.intro)}</div></div>${rows}`;
     say(d.gifts.length+' gifts found · Links open at the retailer',false);
   }catch(err){
