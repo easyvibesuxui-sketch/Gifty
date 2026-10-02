@@ -29,6 +29,7 @@ from the code. Read this before changing infrastructure, design or the AI call.
 | KV `MESSAGES` | `giftly-messages` · `2d0ee2b4ab954492b1f280a36ae4953e` | contact-form submissions |
 | Secret `GEMINI_KEY` | set on project `gifty` | rotate with `npx wrangler pages secret put GEMINI_KEY --project-name gifty`, then redeploy |
 | GitHub App | "Cloudflare Workers and Pages", repo access: `Gifty`, `wedding-platform` | installed under the personal account |
+| Amazon Associates | Store ID `nathan120e-20` | set as `AMZ_TAG` in `public/index.html`; add new domains in Associates Central → Account Settings → website list |
 | Kling AI | official MCP `https://kling.ai/mcp`, Standard plan | used for the hero video |
 
 Secrets only take effect on the **next** deployment. After changing one, push a
