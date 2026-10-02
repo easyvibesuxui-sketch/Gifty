@@ -106,10 +106,10 @@ for p in /.dev.vars /wrangler.toml /CLAUDE.md; do curl -sL https://gifty-5r4.pag
 
 - Contact form stores messages in KV `giftly-messages` (read them in the Cloudflare
   dashboard → Workers KV). No email notification yet — add one once there's a domain.
-- Contact page lists hello@/partners@/press@giftly.ai — those mailboxes don't exist
+- No public email address (removed fake giftly.ai mailboxes) — add one once there's a domain
+- Amazon affiliate tag: set `AMZ_TAG` in `public/index.html` once the Associates ID exists (empty = no commission)
 - Products are 8 hard-coded items in `index.html` (`PROD` array); plan is a
   Supabase + pgvector catalogue of ~100k items
 - No custom domain yet
 - Old Direct-Upload project `giftly` (giftly-aza.pages.dev) still exists — delete once confirmed unused
-- `public/index.html` stats (100K products, 2.4M gifts found) are placeholder numbers
 - Hero video master (14MB, 1080p) is kept locally in `.old-design/`, not in git

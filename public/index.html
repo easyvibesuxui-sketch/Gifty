@@ -469,12 +469,12 @@ footer{padding:clamp(50px,7vw,80px) clamp(20px,5vw,60px) 0}
 <!-- ═══ STATS ═══ -->
 <section class="sec" style="padding-top:0">
   <div class="stats">
-    <div class="stat rv"><div class="stat-n"><span data-count="100">0</span><sup>K</sup></div>
-      <div class="stat-l">Products indexed</div></div>
-    <div class="stat rv rv-1"><div class="stat-n"><span data-count="2.4">0</span><sup>M</sup></div>
-      <div class="stat-l">Gifts found</div></div>
-    <div class="stat rv rv-2"><div class="stat-n"><span data-count="12">0</span><sup>sec</sup></div>
+    <div class="stat rv"><div class="stat-n"><span data-count="4">0</span></div>
+      <div class="stat-l">Ideas per search</div></div>
+    <div class="stat rv rv-1"><div class="stat-n">~<span data-count="3">0</span><sup>sec</sup></div>
       <div class="stat-l">Average search</div></div>
+    <div class="stat rv rv-2"><div class="stat-n"><span data-count="0">0</span></div>
+      <div class="stat-l">Sign-ups needed</div></div>
     <div class="stat rv rv-3"><div class="stat-n">$<span data-count="0">0</span></div>
       <div class="stat-l">Cost to you</div></div>
   </div>
@@ -560,7 +560,7 @@ footer{padding:clamp(50px,7vw,80px) clamp(20px,5vw,60px) 0}
       <li><a href="terms.html">Terms</a></li><li><a href="affiliate.html">Disclosure</a></li></ul></div>
   </div>
   <div class="f-bot">
-    <span>© 2026 Giftly. Some links are affiliate links — we earn a commission at no cost to you.</span>
+    <span>© 2026 Giftly. Some links are affiliate links — we earn a commission at no cost to you. As an Amazon Associate we earn from qualifying purchases.</span>
     <div class="f-legal"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a>
       <a href="cookies.html">Cookies</a></div>
   </div>
@@ -597,6 +597,12 @@ const io=new IntersectionObserver(es=>{
   es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
 },{threshold:.12,rootMargin:'0px 0px -50px 0px'});
 document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+
+/* ── AMAZON LINKS ──
+   Set AMZ_TAG to the Amazon Associates tracking ID (e.g. "gifty-20").
+   Empty = plain search links, no commission. */
+const AMZ_TAG='';
+const amz=q=>'https://www.amazon.com/s?k='+encodeURIComponent(q)+(AMZ_TAG?'&tag='+encodeURIComponent(AMZ_TAG):'');
 
 /* ── COUNTERS ── */
 const sio=new IntersectionObserver(es=>{
@@ -650,8 +656,8 @@ async function run(){
     const d=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(d.error||'Service returned '+r.status);
     const rows=d.gifts.map(g=>
-      `<a class="g-row" target="_blank" rel="noopener"
-          href="https://www.amazon.com/s?k=${encodeURIComponent(g.search)}">
+      `<a class="g-row" target="_blank" rel="sponsored noopener"
+          href="${esc(amz(g.search))}">
         <div><div class="g-nm">${esc(g.name)}</div>
           <div class="g-why">${esc(g.why)}</div></div>
         <div class="g-rt"><div class="g-pr">${esc(g.price)}</div>
@@ -717,8 +723,8 @@ const PROD=[
 function renderProd(f='all'){
   const g=document.getElementById('pgrid');
   g.innerHTML=PROD.filter(p=>p.t.includes(f)).map((p,i)=>`
-    <a class="card rv rv-${(i%4)+1}" target="_blank" rel="noopener"
-       href="https://www.amazon.com/s?k=${encodeURIComponent(p.q)}">
+    <a class="card rv rv-${(i%4)+1}" target="_blank" rel="sponsored noopener"
+       href="${esc(amz(p.q))}">
       <div class="card-top">${p.tag?`<span class="card-tag">${p.tag}</span>`:''}${p.e}</div>
       <div class="card-bd">
         <div class="card-cat">${p.cat}</div>
