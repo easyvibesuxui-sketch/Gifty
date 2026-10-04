@@ -1,14 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://askgifty.com/about</loc><priority>0.4</priority></url>
-  <url><loc>https://askgifty.com/affiliate</loc><priority>0.4</priority></url>
+  <url><loc>https://askgifty.com/about</loc><priority>0.3</priority></url>
+  <url><loc>https://askgifty.com/affiliate</loc><priority>0.3</priority></url>
   <url><loc>https://askgifty.com/blog-post-1</loc><priority>0.6</priority></url>
   <url><loc>https://askgifty.com/blog-post-2</loc><priority>0.6</priority></url>
   <url><loc>https://askgifty.com/blog-post-3</loc><priority>0.6</priority></url>
-  <url><loc>https://askgifty.com/blog</loc><priority>0.8</priority></url>
-  <url><loc>https://askgifty.com/contact</loc><priority>0.4</priority></url>
-  <url><loc>https://askgifty.com/cookies</loc><priority>0.4</priority></url>
+  <url><loc>https://askgifty.com/blog</loc><priority>0.6</priority></url>
+  <url><loc>https://askgifty.com/contact</loc><priority>0.3</priority></url>
+  <url><loc>https://askgifty.com/cookies</loc><priority>0.3</priority></url>
+  <url><loc>https://askgifty.com/gifts/anniversary-gifts</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-artists</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-book-lovers</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-coffee-lovers</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-couples</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-coworkers</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-dad</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-fitness-lovers</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-gamers</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-gardeners</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-her</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-him</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-home-cooks</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-kids</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-mom</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-music-lovers</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-outdoor-lovers</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-pet-lovers</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-tech-lovers</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-teens</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/for-travelers</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/housewarming-gifts</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/</loc><priority>0.9</priority></url>
+  <url><loc>https://askgifty.com/gifts/luxury-gifts</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/self-care-gifts</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/under-100</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/under-25</loc><priority>0.8</priority></url>
+  <url><loc>https://askgifty.com/gifts/under-50</loc><priority>0.8</priority></url>
   <url><loc>https://askgifty.com/</loc><priority>1.0</priority></url>
-  <url><loc>https://askgifty.com/privacy</loc><priority>0.4</priority></url>
-  <url><loc>https://askgifty.com/terms</loc><priority>0.4</priority></url>
+  <url><loc>https://askgifty.com/privacy</loc><priority>0.3</priority></url>
+  <url><loc>https://askgifty.com/terms</loc><priority>0.3</priority></url>
 </urlset>
