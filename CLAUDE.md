@@ -75,6 +75,13 @@ and zone `askgifty.com` (`b20d80f8e5802e9ce1cd4eb37c1f37df`: DNS, Email Routing,
 - AI search uses this catalogue (see Gemini below). Next: more products; real product
   images once PA-API is available.
 
+## Search engines
+
+- **IndexNow** (Bing, Yandex, Seznam…): key file `public/d4dd8172239bc26a91de9c8fa820713e.txt` (public by design).
+  After adding pages, ping: `python3 scripts/indexnow.py` (sends every sitemap URL).
+- **Google Search Console**: owner must add the Domain property askgifty.com once
+  (needs his Google login); then submit `sitemap.xml`. DNS TXT can be added via the API.
+
 ## Hard rules
 
 1. **Never commit `.dev.vars`** or any API key. Run `bash scripts/check-secrets.sh` before committing; it must print PASS.
