@@ -17,7 +17,7 @@ const ATTEMPT_MS = 12000;       // per-model timeout
 const HEDGE_MS = 6000;          // start the backup model if the first hasn't answered by now
 const CACHE_TTL = 86400;        // identical searches are served from the edge cache for a day
 
-const SYSTEM = `You are Giftly's gift advisor. The user describes who they're buying for.
+const SYSTEM = `You are Gifty's gift advisor. The user describes who they're buying for.
 Suggest 3-4 specific, real, purchasable gifts.
 Respond ONLY with raw JSON, no markdown fences:
 {"intro":"One warm sentence about your approach for this person.",
@@ -183,7 +183,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   // ── 3. edge cache: same search → same answer, instantly ─────────────────
   const cache = caches.default;
   const cacheKey = new Request(
-    `${new URL(request.url).origin}/__cache/gift/v1?q=${encodeURIComponent(normalize(q))}`,
+    `${new URL(request.url).origin}/__cache/gift/v2?q=${encodeURIComponent(normalize(q))}`,
   );
   try {
     const hit = await cache.match(cacheKey);

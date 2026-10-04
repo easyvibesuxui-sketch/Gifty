@@ -24,7 +24,8 @@ from the code. Read this before changing infrastructure, design or the AI call.
 | GitHub repo | `easyvibesuxui-sketch/Gifty` (public) | `main` deploys to production |
 | Cloudflare account | khomerik.nod@gmail.com (signs in with Google) | account id `a2f3243ab8273c87488051f7b57284ba` |
 | Pages project (live) | `gifty` → https://gifty-5r4.pages.dev | Git-connected; build output `public`, no build command |
-| Pages project (old) | `giftly` → https://giftly-aza.pages.dev | Direct-upload, superseded. Safe to delete once confirmed unused |
+| Pages project (old) | `giftly` | deleted 2026-10-03 |
+| Domain | `askgifty.com` | Cloudflare Registrar, expires 2027-10-03; brand renamed Giftly → Gifty to match |
 | KV `RATE` | `giftly-rate-limit` · `cc81d5d72b7542edb1bda4afc10e3c60` | per-IP limits for both APIs |
 | KV `MESSAGES` | `giftly-messages` · `2d0ee2b4ab954492b1f280a36ae4953e` | contact-form submissions |
 | Secret `GEMINI_KEY` | set on project `gifty` | rotate with `npx wrangler pages secret put GEMINI_KEY --project-name gifty`, then redeploy |

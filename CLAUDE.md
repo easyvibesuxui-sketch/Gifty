@@ -2,7 +2,8 @@
 
 AI gift finder. The user describes a person, Gemini suggests real products,
 links go to Amazon (affiliate). Static site + serverless functions on
-Cloudflare Pages. Live: https://gifty-5r4.pages.dev
+Cloudflare Pages. Live: https://gifty-5r4.pages.dev · Domain: **askgifty.com**
+(bought 2026-10-03 on Cloudflare Registrar; brand name on the site is **Gifty**)
 
 **Read first:**
 - `docs/decisions.md` — accounts & resource IDs, why the design looks like this,
@@ -95,7 +96,7 @@ npx wrangler pages secret put GEMINI_KEY --project-name gifty
 first (12s timeout per model). `thinkingLevel: LOW`, `responseMimeType: application/json`.
 Override the model with a `GEMINI_MODEL` env var.
 - Successful answers are kept in the edge cache (`caches.default`) for 24h, keyed
-  on the normalised query — response header `X-Cache: HIT|MISS`. Bump `/v1` in the
+  on the normalised query — response header `X-Cache: HIT|MISS`. Bump the version (now `/v2`) in the
   cache key after changing the prompt.
 - If every model fails it returns 200 with `fallback: true` and 4 hand-picked gifts
   from the `CURATED` list (keyword-matched); the reasons go to `console.error`.
@@ -114,6 +115,7 @@ for p in /.dev.vars /wrangler.toml /CLAUDE.md; do curl -sL https://gifty-5r4.pag
 - No public email address (removed fake giftly.ai mailboxes) — add one once there's a domain
 - Products are 8 hard-coded items in `index.html` (`PROD` array); plan is a
   Supabase + pgvector catalogue of ~100k items
-- No custom domain yet
-- Old Direct-Upload project `giftly` (giftly-aza.pages.dev) still exists — delete once confirmed unused
+- askgifty.com is bought but must be attached in Pages → gifty → Custom domains
+  (the Cloudflare connector can't do it). Then: redirect pages.dev → askgifty.com,
+  Email Routing hello@askgifty.com, add domain in Amazon Associates.
 - Hero video master (14MB, 1080p) is kept locally in `.old-design/`, not in git
