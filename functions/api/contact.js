@@ -4,7 +4,9 @@
  * Read them in the Cloudflare dashboard: Storage & databases → Workers KV →
  * giftly-messages. Keys sort newest-first.
  *
- * No email provider yet — add one once there's a custom domain.
+ * Each message is also emailed to the owner through the private `gifty-mailer`
+ * Worker (service binding MAILER; source in workers/mailer/). If that fails the
+ * message is still saved in KV.
  */
 
 const LIMITS = { name: 80, email: 160, topic: 60, message: 4000 };
@@ -27,6 +29,30 @@ const json = (body, status = 200) =>
 
 const clean = (v, max) =>
   typeof v === "string" ? v.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "").trim().slice(0, max) : "";
+
+async function notify(env, msg, record) {
+  if (!env.MAILER) return false;
+  const text = [
+    `From: ${msg.name} <${msg.email}>`,
+    `Topic: ${msg.topic}`,
+    `Country: ${record.country || "?"}`,
+    `Received: ${record.receivedAt}`,
+    "",
+    msg.message,
+  ].join("\n");
+  try {
+    const r = await env.MAILER.fetch("https://mailer/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: msg.name, email: msg.email, topic: msg.topic, text }),
+    });
+    if (!r.ok) console.error("contact email failed:", r.status, await r.text());
+    return r.ok;
+  } catch (e) {
+    console.error("contact email failed:", e?.message || e);
+    return false;
+  }
+}
 
 export async function onRequestPost({ request, env }) {
   if (!env.MESSAGES) return json({ error: "Messages aren't set up yet." }, 503);
@@ -75,7 +101,8 @@ export async function onRequestPost({ request, env }) {
     metadata: { from: msg.email, topic: msg.topic, at: record.receivedAt },
   });
 
-  return json({ ok: true });
+  const emailed = await notify(env, msg, record);
+  return json({ ok: true, emailed });
 }
 
 export async function onRequest({ request }) {

@@ -20,3 +20,9 @@ id = "cc81d5d72b7542edb1bda4afc10e3c60"
 [[kv_namespaces]]
 binding = "MESSAGES"
 id = "2d0ee2b4ab954492b1f280a36ae4953e"
+
+# Contact-form notifications: private Worker "gifty-mailer" (workers/mailer/)
+# sends each message to the owner's Gmail via send_email.
+[[services]]
+binding = "MAILER"
+service = "gifty-mailer"

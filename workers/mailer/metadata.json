@@ -1,0 +1,1 @@
+{"main_module":"worker.js","compatibility_date":"2026-09-11","bindings":[{"type":"send_email","name":"EMAIL","allowed_destination_addresses":["khomerik.nod@gmail.com"]}]}
