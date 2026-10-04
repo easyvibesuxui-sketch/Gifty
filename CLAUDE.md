@@ -122,7 +122,10 @@ for p in /.dev.vars /wrangler.toml /CLAUDE.md; do curl -sL https://askgifty.com$
 ## Not done yet
 
 - Contact form stores messages in KV `giftly-messages` (read them in the Cloudflare
-  dashboard → Workers KV). No email notification for form messages yet.
+  dashboard → Workers KV). No email notification for form messages yet: Pages
+  rejects the `send_email` binding in wrangler.toml (build fails). Plan: a private
+  Worker `gifty-mailer` with `send_email` (to the verified Gmail) called via a Pages
+  `[[services]]` binding. Blocked: the API token lacks **Account → Workers Scripts → Edit**.
 - Products are 8 hard-coded items in `index.html` (`PROD` array); plan is a
   Supabase + pgvector catalogue of ~100k items
 - Hero video master (14MB, 1080p) is kept locally in `.old-design/`, not in git
