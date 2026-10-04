@@ -4,8 +4,13 @@
  * Read them in the Cloudflare dashboard: Storage & databases → Workers KV →
  * giftly-messages. Keys sort newest-first.
  *
- * No email provider yet — add one once there's a custom domain.
+ * Also emails each message to the owner through Cloudflare's send_email
+ * binding (EMAIL). Sending to a verified Email Routing destination is free.
+ * If the binding is missing or sending fails, the message is still saved.
  */
+
+const NOTIFY_TO = "khomerik.nod@gmail.com";        // verified Email Routing destination
+const NOTIFY_FROM = "contact@askgifty.com";
 
 const LIMITS = { name: 80, email: 160, topic: 60, message: 4000 };
 const TOPICS = new Set([
@@ -28,7 +33,30 @@ const json = (body, status = 200) =>
 const clean = (v, max) =>
   typeof v === "string" ? v.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "").trim().slice(0, max) : "";
 
-export async function onRequestPost({ request, env }) {
+async function notify(env, msg, record) {
+  if (!env.EMAIL) return;
+  const text = [
+    `From: ${msg.name} <${msg.email}>`,
+    `Topic: ${msg.topic}`,
+    `Country: ${record.country || "?"}`,
+    `Received: ${record.receivedAt}`,
+    "",
+    msg.message,
+  ].join("\n");
+  try {
+    await env.EMAIL.send({
+      to: NOTIFY_TO,
+      from: { email: NOTIFY_FROM, name: "Gifty contact form" },
+      replyTo: { email: msg.email, name: msg.name },
+      subject: `[Gifty] ${msg.topic} — ${msg.name}`,
+      text,
+    });
+  } catch (e) {
+    console.error("contact email failed:", e?.code || "", e?.message || e);
+  }
+}
+
+export async function onRequestPost({ request, env, waitUntil }) {
   if (!env.MESSAGES) return json({ error: "Messages aren't set up yet." }, 503);
 
   let body;
@@ -74,6 +102,9 @@ export async function onRequestPost({ request, env }) {
   await env.MESSAGES.put(key, JSON.stringify(record, null, 2), {
     metadata: { from: msg.email, topic: msg.topic, at: record.receivedAt },
   });
+
+  const sent = notify(env, msg, record);
+  if (waitUntil) waitUntil(sent); else await sent;
 
   return json({ ok: true });
 }

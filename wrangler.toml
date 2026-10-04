@@ -20,3 +20,8 @@ id = "cc81d5d72b7542edb1bda4afc10e3c60"
 [[kv_namespaces]]
 binding = "MESSAGES"
 id = "2d0ee2b4ab954492b1f280a36ae4953e"
+
+# Contact-form notifications → owner's Gmail (verified Email Routing destination).
+[[send_email]]
+name = "EMAIL"
+allowed_destination_addresses = ["khomerik.nod@gmail.com"]
