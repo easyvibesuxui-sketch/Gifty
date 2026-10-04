@@ -31,7 +31,8 @@ public/                 ← the ONLY folder that gets deployed. Nothing secret h
   hero.mp4 / hero.webm  Kling-generated background loop (720p, ~0.8MB)
   hero-poster.jpg       first frame, shown before video loads
 functions/api/gift.js   POST /api/gift — calls Gemini server-side
-functions/api/contact.js  POST /api/contact — stores contact-form messages in KV
+functions/api/contact.js  POST /api/contact — stores contact-form messages in KV + emails owner
+workers/mailer/         private Worker gifty-mailer (send_email) — NOT part of Pages deploy
 scripts/check-secrets.sh  scans for leaked keys; run before every commit
 docs/decisions.md       history, resource IDs, gotchas
 docs/plan.md            original 100k-product architecture plan
@@ -44,11 +45,19 @@ wrangler.toml           Pages config: output dir, KV bindings (RATE, MESSAGES)
 A Cloudflare API token is stored as an environment credential: requests to
 `https://api.cloudflare.com/client/v4/...` get the `Authorization` header added
 automatically (you never see the token). Just `curl` the API — no token in commands.
-Scope: account `a2f3243ab8273c87488051f7b57284ba` (Pages, KV, Email Routing addresses)
+Scope: account `a2f3243ab8273c87488051f7b57284ba` (Pages, KV, Workers Scripts, Email Routing addresses)
 and zone `askgifty.com` (`b20d80f8e5802e9ce1cd4eb37c1f37df`: DNS, Email Routing, settings).
 
 - `functions/_middleware.js` 301-redirects `www.askgifty.com` and `gifty-5r4.pages.dev` to askgifty.com.
 - Email Routing: `hello@askgifty.com` and catch-all `*@askgifty.com` → khomerik.nod@gmail.com.
+- Contact form: `/api/contact` saves to KV `giftly-messages` **and** emails the owner via the
+  private Worker `gifty-mailer` (`workers/mailer/`, service binding `MAILER` in wrangler.toml).
+  Pages can't use `send_email` itself — the build fails. workers.dev is off for the mailer.
+  Redeploy it after editing:
+  ```bash
+  cd workers/mailer && curl -s -X PUT https://api.cloudflare.com/client/v4/accounts/a2f3243ab8273c87488051f7b57284ba/workers/scripts/gifty-mailer \
+    -F "metadata=@metadata.json;type=application/json" -F "worker.js=@worker.js;type=application/javascript+module"
+  ```
 
 ## Hard rules
 
@@ -121,11 +130,6 @@ for p in /.dev.vars /wrangler.toml /CLAUDE.md; do curl -sL https://askgifty.com$
 
 ## Not done yet
 
-- Contact form stores messages in KV `giftly-messages` (read them in the Cloudflare
-  dashboard → Workers KV). No email notification for form messages yet: Pages
-  rejects the `send_email` binding in wrangler.toml (build fails). Plan: a private
-  Worker `gifty-mailer` with `send_email` (to the verified Gmail) called via a Pages
-  `[[services]]` binding. Blocked: the API token lacks **Account → Workers Scripts → Edit**.
 - Products are 8 hard-coded items in `index.html` (`PROD` array); plan is a
   Supabase + pgvector catalogue of ~100k items
 - Hero video master (14MB, 1080p) is kept locally in `.old-design/`, not in git
