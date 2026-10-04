@@ -20,44 +20,6 @@ const CACHE_TTL = 86400;        // identical searches are served from the edge c
 // Our hand-picked catalogue (generated from data/products.py by scripts/build_catalog.py).
 import CATALOG from "../../lib/catalog.js";
 
-const BY_ID = new Map(CATALOG.map((c) => [c[0], c]));
-const CATALOG_TEXT = CATALOG.map(([id, name, price, , tags]) => `${id}|${name}|$${price}|${tags}`).join("\n");
-
-const SYSTEM = `You are Gifty's gift advisor. The user describes who they're buying for.
-Pick the 4 best gifts for this person from OUR CATALOGUE below (format: id|name|approx price|tags).
-Respect any budget the user mentions. Prefer variety over 4 similar items.
-Only if the catalogue truly has nothing that fits a clear interest of theirs, you may add at most ONE
-real, specific product from outside the catalogue.
-Respond ONLY with raw JSON, no markdown fences:
-{"intro":"One warm sentence about your approach for this person.",
- "gifts":[{"id":12,"why":"One personal sentence about why it suits THIS person."},
-          {"name":"Outside product name","price":"$XX","search":"amazon search query","why":"..."}]}
-Use "id" for catalogue items. Max 4 gifts. Make each 'why' personal to the description.
-
-OUR CATALOGUE:
-${CATALOG_TEXT}`;
-
-// Shown when every model fails, so the visitor still gets something to click.
-// k = keywords matched against the query. Prices are approximate.
-const CURATED = [
-  { k: ["coffee", "espresso", "caffeine"], name: "AeroPress Original Coffee Maker", price: "~$40", why: "Fast, nearly indestructible and makes a remarkably smooth cup — a coffee lover's favourite.", search: "AeroPress Original coffee maker" },
-  { k: ["coffee", "tea", "kettle", "pour"], name: "Fellow Stagg EKG Electric Kettle", price: "~$165", why: "Precise temperature control for people who take the first cup seriously.", search: "Fellow Stagg EKG electric kettle" },
-  { k: ["office", "coworker", "colleague", "boss", "tea", "coffee", "desk"], name: "Ember Mug 2", price: "~$130", why: "Keeps their drink at the exact temperature they like, all morning long.", search: "Ember Mug 2 temperature control" },
-  { k: ["cook", "cooking", "chef", "kitchen", "bake", "food"], name: "Lodge 12\" Cast Iron Skillet", price: "~$35", why: "A pan that lasts a lifetime and gets better every time they cook with it.", search: "Lodge 12 inch cast iron skillet" },
-  { k: ["book", "books", "read", "reading", "novel", "novels", "detective"], name: "Kindle Paperwhite", price: "~$160", why: "A whole library in one hand, glare-free and easy on the eyes at night.", search: "Kindle Paperwhite" },
-  { k: ["hike", "hiking", "outdoor", "outdoors", "camp", "camping", "travel", "travels"], name: "Hydro Flask 32 oz Wide Mouth", price: "~$45", why: "Keeps water ice-cold on long days out — built to be dropped on rocks.", search: "Hydro Flask 32 oz wide mouth" },
-  { k: ["hike", "hiking", "travel", "travels", "trip", "backpack"], name: "Osprey Daylite Plus Backpack", price: "~$65", why: "Light, comfortable and roomy enough for a full day of adventure.", search: "Osprey Daylite Plus backpack" },
-  { k: ["yoga", "pilates", "wellness", "meditation"], name: "Manduka PRO Yoga Mat", price: "~$130", why: "The mat serious practitioners swear by — grippy, dense and made to last.", search: "Manduka PRO yoga mat" },
-  { k: ["gym", "fitness", "run", "runner", "running", "sport", "sports", "athlete"], name: "Theragun Mini", price: "~$199", why: "Pocket-sized muscle recovery for after every workout.", search: "Theragun Mini massage gun" },
-  { k: ["tech", "gadget", "gadgets", "phone", "iphone", "nerd", "techie"], name: "Anker MagGo Power Bank", price: "~$70", why: "Snaps onto their phone and keeps it alive through the busiest days.", search: "Anker MagGo power bank" },
-  { k: ["garden", "gardening", "gardener", "plant", "plants", "flowers"], name: "LEGO Botanical Flower Bouquet", price: "~$60", why: "A relaxing build that ends as flowers that never wilt.", search: "LEGO Botanical flower bouquet" },
-  { k: ["art", "artist", "paint", "painting", "draw", "drawing", "creative"], name: "Winsor & Newton Cotman Watercolour Set", price: "~$30", why: "Quality paints that make starting (or restarting) a creative habit easy.", search: "Winsor Newton Cotman watercolour set" },
-  { k: ["photo", "photos", "camera", "teen", "party", "memories", "girlfriend"], name: "Fujifilm Instax Mini 12", price: "~$80", why: "Instant prints turn everyday moments into keepsakes they can hold.", search: "Fujifilm Instax Mini 12 instant camera" },
-  { k: ["wife", "girlfriend", "anniversary", "candle", "home", "luxury", "mom", "mother"], name: "Diptyque Baies Candle", price: "~$78", why: "A cult-favourite scent that makes any room feel like a treat.", search: "Diptyque Baies candle" },
-  { k: ["game", "games", "gamer", "gaming", "nintendo", "switch", "kid", "son"], name: "Nintendo Switch Pro Controller", price: "~$70", why: "A big comfort upgrade for long gaming sessions.", search: "Nintendo Switch Pro Controller" },
-];
-const DEFAULT_PICKS = ["Ember Mug 2", "Kindle Paperwhite", "Fujifilm Instax Mini 12", "Diptyque Baies Candle"];
-
 const json = (body, status = 200, extra = {}) =>
   new Response(JSON.stringify(body), {
     status,
@@ -71,23 +33,106 @@ const json = (body, status = 200, extra = {}) =>
 
 const normalize = (q) => q.toLowerCase().replace(/[^\p{L}\p{N}$ ]+/gu, " ").replace(/\s+/g, " ").trim();
 
-function curatedPicks(q) {
-  const words = new Set(normalize(q).split(" "));
-  const scored = CURATED
-    .map((g, i) => ({ g, i, score: g.k.filter((k) => words.has(k)).length }))
-    .filter((x) => x.score > 0)
-    .sort((a, b) => b.score - a.score || a.i - b.i)
-    .map((x) => x.g);
-  for (const name of DEFAULT_PICKS) {
-    if (scored.length >= 4) break;
-    const g = CURATED.find((c) => c.name === name);
-    if (!scored.includes(g)) scored.push(g);
+const BY_ID = new Map(CATALOG.map((c) => [c[0], c]));
+
+// "$50", "50 dollars", "under 50", "budget 50" → 50. Null when no budget is mentioned.
+function budgetOf(q) {
+  const t = q.toLowerCase();
+  const m = t.match(/\$\s*(\d{1,5})/) || t.match(/(\d{1,5})\s*(?:\$|dollars?|usd|bucks)/) ||
+    t.match(/(?:under|below|less than|budget(?: of| is)?|up to|max(?:imum)?)\s*(\d{1,5})/);
+  const n = m ? Number(m[1]) : NaN;
+  return n >= 5 ? n : null;
+}
+const fits = (c, budget) => !budget || c[2] <= budget * 1.1;
+
+function systemFor(budget) {
+  const list = CATALOG.filter((c) => fits(c, budget))
+    .map(([id, name, price, , tags]) => `${id}|${name}|$${price}|${tags}`).join("\n");
+  return `You are Gifty's gift advisor. The user describes who they're buying for.
+Pick the 4 best gifts for this person from OUR CATALOGUE below (format: id|name|approx price|tags).
+${budget ? `Their budget is about $${budget}: every pick must cost at most that.` : "Respect any budget the user mentions."}
+Prefer variety over 4 similar items.
+Only if the catalogue truly has nothing that fits a clear interest of theirs, you may add at most ONE
+real, specific product from outside the catalogue.
+Respond ONLY with raw JSON, no markdown fences:
+{"intro":"One warm sentence about your approach for this person.",
+ "gifts":[{"id":12,"why":"One personal sentence about why it suits THIS person."},
+          {"name":"Outside product name","price":"$XX","search":"amazon search query","why":"..."}]}
+Use "id" for catalogue items. Max 4 gifts. Make each 'why' personal to the description.
+
+OUR CATALOGUE:
+${list}`;
+}
+
+// Query words → catalogue tags, for the no-AI fallback.
+const SYNONYMS = {
+  dad: "dad", father: "dad", grandpa: "dad", grandfather: "dad",
+  mom: "mom", mum: "mom", mother: "mom", grandma: "mom", grandmother: "mom",
+  wife: "her", girlfriend: "her", sister: "her", daughter: "her", aunt: "her", her: "her", she: "her", woman: "her",
+  husband: "him", boyfriend: "him", brother: "him", son: "him", uncle: "him", him: "him", he: "him", man: "him",
+  kid: "kids", kids: "kids", child: "kids", toddler: "kids", boy: "kids", girl: "kids",
+  teen: "teens", teenager: "teens", student: "teens",
+  coworker: "coworker", colleague: "coworker", boss: "coworker", office: "coworker",
+  couple: "couple", anniversary: "anniversary", housewarming: "housewarming", home: "home",
+  coffee: "coffee", espresso: "coffee", tea: "tea",
+  book: "books", books: "books", read: "books", reading: "books", reader: "books", novels: "books",
+  cook: "cooking", cooking: "cooking", chef: "cooking", baking: "cooking", kitchen: "cooking", food: "cooking",
+  game: "gaming", games: "gaming", gamer: "gaming", gaming: "gaming",
+  travel: "travel", travels: "travel", trip: "travel", traveler: "travel",
+  gym: "fitness", fitness: "fitness", run: "fitness", runner: "fitness", running: "fitness", yoga: "fitness", workout: "fitness",
+  relax: "wellness", spa: "wellness", selfcare: "wellness", sleep: "wellness",
+  garden: "garden", gardening: "garden", plants: "garden", plant: "garden",
+  tech: "tech", gadget: "tech", gadgets: "tech", techie: "tech", computer: "tech",
+  art: "art", artist: "art", paint: "art", painting: "art", draw: "art", drawing: "art", craft: "art", crafts: "art", knit: "art", knits: "art", knitting: "art",
+  music: "music", guitar: "music", vinyl: "music", musician: "music",
+  dog: "pets", cat: "pets", pet: "pets", pets: "pets", puppy: "pets",
+  photo: "photo", photos: "photo", photography: "photo", camera: "photo",
+  wine: "drinks", whiskey: "drinks", whisky: "drinks", cocktail: "drinks", cocktails: "drinks",
+  fashion: "fashion", style: "fashion", jewelry: "fashion",
+  hike: "outdoors", hiking: "outdoors", camping: "outdoors", camp: "outdoors", fishing: "outdoors", fish: "outdoors",
+  golf: "outdoors", outdoors: "outdoors", outdoor: "outdoors", hunting: "outdoors",
+};
+
+const RECIPIENTS = new Set(["dad", "mom", "her", "him", "kids", "teens", "coworker", "couple"]);
+// Words that point at specific products by name.
+const HINTS = { fishing: "spinning", fish: "spinning", golf: "golf", pizza: "pizza", yoga: "yoga",
+  camera: "camera", photography: "camera", whiskey: "whisk", whisky: "whisk", wine: "corkscrew",
+  lego: "lego", knitting: "craft", vinyl: "turntable", espresso: "espresso", tea: "tea", dog: "dog" };
+const DEFAULT_IDS = ["Ember Mug 2", "Kindle Paperwhite", "Fujifilm Instax Mini 12", "Diptyque Baies Candle"]
+  .map((n) => CATALOG.find((c) => c[1].startsWith(n))?.[0]).filter((x) => x !== undefined);
+
+// Best keyword matches from the catalogue, within budget, skipping `skip` ids.
+// Used when every model fails, and to top up budget-filtered AI answers.
+function catalogPicks(q, budget, n, skip = new Set()) {
+  const words = normalize(q).split(" ");
+  const tags = new Set(words.map((w) => SYNONYMS[w]).filter(Boolean));
+  const interests = [...tags].filter((t) => !RECIPIENTS.has(t));
+  const hints = words.map((w) => HINTS[w]).filter(Boolean);
+  const pool = CATALOG.filter((c) => fits(c, budget) && !skip.has(c[0]));
+  const score = (c) => {
+    const ct = c[4].split(" ");
+    const name = c[1].toLowerCase();
+    return ct.reduce((s, t) => s + (tags.has(t) ? (RECIPIENTS.has(t) ? 1 : 3) : 0), 0)
+      + hints.filter((h) => name.includes(h)).length * 5;
+  };
+  const ranked = pool.map((c) => ({ c, s: score(c) })).filter((x) => x.s > 0)
+    .sort((a, b) => b.s - a.s || a.c[0] - b.c[0]).map((x) => x.c);
+  const out = [];
+  for (const i of interests) {                    // one top pick per interest first, for variety
+    const c = ranked.find((x) => !out.includes(x) && x[4].split(" ").includes(i));
+    if (c && out.length < n) out.push(c);
   }
-  return scored.slice(0, 4).map(({ name, price, why, search }) => ({ name, price, why, search }));
+  for (const c of ranked) if (out.length < n && !out.includes(c)) out.push(c);
+  for (const id of DEFAULT_IDS) {
+    const c = BY_ID.get(id);
+    if (out.length < n && c && fits(c, budget) && !skip.has(id) && !out.includes(c)) out.push(c);
+  }
+  for (const c of pool) if (out.length < n && !out.includes(c)) out.push(c);
+  return out.map((c) => ({ name: c[1], price: `~$${c[2]}`, why: c[5], search: c[3], id: c[0] }));
 }
 
 // Ask one model; resolves with the cleaned result or throws a short, key-free reason.
-async function askModel(model, q, key) {
+async function askModel(model, q, key, budget) {
   for (const withThinking of [true, false]) {
     const t0 = Date.now();
     let r;
@@ -97,7 +142,7 @@ async function askModel(model, q, key) {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": key },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: `${SYSTEM}\n\nUser: "${q}"` }] }],
+          contents: [{ parts: [{ text: `${systemFor(budget)}\n\nUser: "${q}"` }] }],
           generationConfig: {
             temperature: 0.85,
             maxOutputTokens: 2048,               // thinking tokens share this budget
@@ -140,7 +185,7 @@ async function askModel(model, q, key) {
       const why = String(g?.why ?? "").slice(0, 300);
       const c = BY_ID.get(Number(g?.id));
       if (g?.id !== undefined && g?.id !== null && c) {
-        if (seen.has(c[0])) continue;
+        if (seen.has(c[0]) || !fits(c, budget)) continue;
         seen.add(c[0]);
         gifts.push({ name: c[1], price: `~$${c[2]}`, why, search: c[3] });
       } else if (outside < 1 && g?.name && g?.search) {
@@ -151,6 +196,12 @@ async function askModel(model, q, key) {
           why,
           search: String(g.search).slice(0, 160),
         });
+      }
+    }
+    // Top up from the catalogue if budget filtering left too few.
+    if (gifts.length < 3) {
+      for (const x of catalogPicks(q, budget, 4 - gifts.length, seen)) {
+        gifts.push({ name: x.name, price: x.price, why: x.why, search: x.search });
       }
     }
     const clean = { intro: String(parsed?.intro ?? "").slice(0, 400), gifts };
@@ -208,7 +259,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   // ── 3. edge cache: same search → same answer, instantly ─────────────────
   const cache = caches.default;
   const cacheKey = new Request(
-    `${new URL(request.url).origin}/__cache/gift/v3?q=${encodeURIComponent(normalize(q))}`,
+    `${new URL(request.url).origin}/__cache/gift/v4?q=${encodeURIComponent(normalize(q))}`,
   );
   try {
     const hit = await cache.match(cacheKey);
@@ -234,15 +285,16 @@ export async function onRequestPost({ request, env, waitUntil }) {
     ? [env.GEMINI_MODEL]
     : ["gemini-3.5-flash-lite", "gemini-3.8-flash"];
 
+  const budget = budgetOf(q);
   let result;
   try {
-    result = await hedged(models, (m) => askModel(m, q, env.GEMINI_KEY));
+    result = await hedged(models, (m) => askModel(m, q, env.GEMINI_KEY, budget));
   } catch (tried) {
     // Every model failed: answer with hand-picked gifts instead of an error.
     console.error("gemini failed:", [].concat(tried).join(" | "));
     return json({
       intro: "Our AI is a little busy right now, so here are hand-picked ideas that fit.",
-      gifts: curatedPicks(q),
+      gifts: catalogPicks(q, budget, 4).map(({ name, price, why, search }) => ({ name, price, why, search })),
       fallback: true,
     });
   }

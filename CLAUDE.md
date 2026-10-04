@@ -72,8 +72,8 @@ and zone `askgifty.com` (`b20d80f8e5802e9ce1cd4eb37c1f37df`: DNS, Email Routing,
 - Guide pages take their CSS from `public/blog.html`, so design changes there carry over.
 - Products are real, well-known items; prices are approximate (shown as "~$40").
   Links are Amazon searches with `tag=nathan120e-20` (no PA-API yet — it needs 3 sales first).
-- Next steps: Gemini picks from this catalogue instead of inventing products;
-  more products; real product images once PA-API is available.
+- AI search uses this catalogue (see Gemini below). Next: more products; real product
+  images once PA-API is available.
 
 ## Hard rules
 
@@ -132,10 +132,14 @@ npx wrangler pages secret put GEMINI_KEY --project-name gifty
 first (12s timeout per model). `thinkingLevel: LOW`, `responseMimeType: application/json`.
 Override the model with a `GEMINI_MODEL` env var.
 - Successful answers are kept in the edge cache (`caches.default`) for 24h, keyed
-  on the normalised query — response header `X-Cache: HIT|MISS`. Bump the version (now `/v3`) in the
+  on the normalised query — response header `X-Cache: HIT|MISS`. Bump the version (now `/v4`) in the
   cache key after changing the prompt.
-- If every model fails it returns 200 with `fallback: true` and 4 hand-picked gifts
-  from the `CURATED` list (keyword-matched); the reasons go to `console.error`.
+- Gemini picks from **our catalogue** (`lib/catalog.js`, generated from `data/products.py`):
+  the prompt lists `id|name|$price|tags`, Gemini returns ids (+ at most one outside product),
+  the server maps ids to our names/prices/Amazon queries. A budget in the query ("under $50",
+  "50 dollars") is parsed server-side: over-budget items are removed from the prompt and the answer.
+- If every model fails it returns 200 with `fallback: true` and 4 keyword-matched catalogue picks
+  (`catalogPicks`, word → tag map `SYNONYMS`); the reasons go to `console.error`.
 
 ## Verify after every deploy
 
