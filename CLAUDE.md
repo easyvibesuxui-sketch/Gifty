@@ -2,7 +2,7 @@
 
 AI gift finder. The user describes a person, Gemini suggests real products,
 links go to Amazon (affiliate). Static site + serverless functions on
-Cloudflare Pages. Live: https://gifty-5r4.pages.dev · Domain: **askgifty.com**
+Cloudflare Pages. Live: **https://askgifty.com** (gifty-5r4.pages.dev and www 301 → askgifty.com)
 (bought 2026-10-03 on Cloudflare Registrar; brand name on the site is **Gifty**)
 
 **Read first:**
@@ -38,6 +38,17 @@ docs/plan.md            original 100k-product architecture plan
 wrangler.toml           Pages config: output dir, KV bindings (RATE, MESSAGES)
 .dev.vars               local secrets (gitignored) — GEMINI_KEY=AQ....
 ```
+
+## Cloudflare API access
+
+A Cloudflare API token is stored as an environment credential: requests to
+`https://api.cloudflare.com/client/v4/...` get the `Authorization` header added
+automatically (you never see the token). Just `curl` the API — no token in commands.
+Scope: account `a2f3243ab8273c87488051f7b57284ba` (Pages, KV, Email Routing addresses)
+and zone `askgifty.com` (`b20d80f8e5802e9ce1cd4eb37c1f37df`: DNS, Email Routing, settings).
+
+- `functions/_middleware.js` 301-redirects `www.askgifty.com` and `gifty-5r4.pages.dev` to askgifty.com.
+- Email Routing: `hello@askgifty.com` and catch-all `*@askgifty.com` → khomerik.nod@gmail.com.
 
 ## Hard rules
 
@@ -77,7 +88,7 @@ Press `t` if a public tunnel opens and you don't want one.
 ## Deploy
 
 Pushing to `main` on GitHub deploys automatically (Cloudflare Pages Git integration, project `gifty`).
-Live: https://gifty-5r4.pages.dev
+Live: https://askgifty.com
 
 Manual fallback:
 ```bash
@@ -104,18 +115,14 @@ Override the model with a `GEMINI_MODEL` env var.
 ## Verify after every deploy
 
 ```bash
-curl -s -X POST https://gifty-5r4.pages.dev/api/gift -H 'Content-Type: application/json' -d '{"q":"dad who loves coffee"}'
-for p in /.dev.vars /wrangler.toml /CLAUDE.md; do curl -sL https://gifty-5r4.pages.dev$p | grep -qE 'GEMINI_KEY=|AQ\.[A-Za-z0-9_-]{20,}' && echo "LEAK $p"; done
+curl -s -X POST https://askgifty.com/api/gift -H 'Content-Type: application/json' -d '{"q":"dad who loves coffee"}'
+for p in /.dev.vars /wrangler.toml /CLAUDE.md; do curl -sL https://askgifty.com$p | grep -qE 'GEMINI_KEY=|AQ\.[A-Za-z0-9_-]{20,}' && echo "LEAK $p"; done
 ```
 
 ## Not done yet
 
 - Contact form stores messages in KV `giftly-messages` (read them in the Cloudflare
-  dashboard → Workers KV). No email notification yet — add one once there's a domain.
-- No public email address (removed fake giftly.ai mailboxes) — add one once there's a domain
+  dashboard → Workers KV). No email notification for form messages yet.
 - Products are 8 hard-coded items in `index.html` (`PROD` array); plan is a
   Supabase + pgvector catalogue of ~100k items
-- askgifty.com is bought but must be attached in Pages → gifty → Custom domains
-  (the Cloudflare connector can't do it). Then: redirect pages.dev → askgifty.com,
-  Email Routing hello@askgifty.com, add domain in Amazon Associates.
 - Hero video master (14MB, 1080p) is kept locally in `.old-design/`, not in git
