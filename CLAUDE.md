@@ -132,7 +132,7 @@ npx wrangler pages secret put GEMINI_KEY --project-name gifty
 first (12s timeout per model). `thinkingLevel: LOW`, `responseMimeType: application/json`.
 Override the model with a `GEMINI_MODEL` env var.
 - Successful answers are kept in the edge cache (`caches.default`) for 24h, keyed
-  on the normalised query — response header `X-Cache: HIT|MISS`. Bump the version (now `/v2`) in the
+  on the normalised query — response header `X-Cache: HIT|MISS`. Bump the version (now `/v3`) in the
   cache key after changing the prompt.
 - If every model fails it returns 200 with `fallback: true` and 4 hand-picked gifts
   from the `CURATED` list (keyword-matched); the reasons go to `console.error`.

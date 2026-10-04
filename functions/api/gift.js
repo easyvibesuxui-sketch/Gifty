@@ -17,12 +17,25 @@ const ATTEMPT_MS = 12000;       // per-model timeout
 const HEDGE_MS = 6000;          // start the backup model if the first hasn't answered by now
 const CACHE_TTL = 86400;        // identical searches are served from the edge cache for a day
 
+// Our hand-picked catalogue (generated from data/products.py by scripts/build_catalog.py).
+import CATALOG from "../../lib/catalog.js";
+
+const BY_ID = new Map(CATALOG.map((c) => [c[0], c]));
+const CATALOG_TEXT = CATALOG.map(([id, name, price, , tags]) => `${id}|${name}|$${price}|${tags}`).join("\n");
+
 const SYSTEM = `You are Gifty's gift advisor. The user describes who they're buying for.
-Suggest 3-4 specific, real, purchasable gifts.
+Pick the 4 best gifts for this person from OUR CATALOGUE below (format: id|name|approx price|tags).
+Respect any budget the user mentions. Prefer variety over 4 similar items.
+Only if the catalogue truly has nothing that fits a clear interest of theirs, you may add at most ONE
+real, specific product from outside the catalogue.
 Respond ONLY with raw JSON, no markdown fences:
 {"intro":"One warm sentence about your approach for this person.",
- "gifts":[{"name":"Product Name","price":"$XX","why":"One personal sentence.","search":"amazon query"}]}
-Max 4 gifts. Real brands. Make each 'why' personal.`;
+ "gifts":[{"id":12,"why":"One personal sentence about why it suits THIS person."},
+          {"name":"Outside product name","price":"$XX","search":"amazon search query","why":"..."}]}
+Use "id" for catalogue items. Max 4 gifts. Make each 'why' personal to the description.
+
+OUR CATALOGUE:
+${CATALOG_TEXT}`;
 
 // Shown when every model fails, so the visitor still gets something to click.
 // k = keywords matched against the query. Prices are approximate.
@@ -117,18 +130,30 @@ async function askModel(model, q, key) {
       throw new Error("bad json");
     }
 
-    // Whitelist the fields we return — nothing extra reaches the client.
-    const clean = {
-      intro: String(parsed?.intro ?? "").slice(0, 400),
-      gifts: Array.isArray(parsed?.gifts)
-        ? parsed.gifts.slice(0, 4).map((g) => ({
-            name: String(g?.name ?? "").slice(0, 120),
-            price: String(g?.price ?? "").slice(0, 24),
-            why: String(g?.why ?? "").slice(0, 300),
-            search: String(g?.search ?? "").slice(0, 160),
-          })).filter((g) => g.name && g.search)
-        : [],
-    };
+    // Map catalogue ids to our own data and whitelist the fields we return —
+    // nothing extra reaches the client. At most one off-catalogue pick.
+    const seen = new Set();
+    let outside = 0;
+    const gifts = [];
+    for (const g of Array.isArray(parsed?.gifts) ? parsed.gifts : []) {
+      if (gifts.length >= 4) break;
+      const why = String(g?.why ?? "").slice(0, 300);
+      const c = BY_ID.get(Number(g?.id));
+      if (g?.id !== undefined && g?.id !== null && c) {
+        if (seen.has(c[0])) continue;
+        seen.add(c[0]);
+        gifts.push({ name: c[1], price: `~$${c[2]}`, why, search: c[3] });
+      } else if (outside < 1 && g?.name && g?.search) {
+        outside++;
+        gifts.push({
+          name: String(g.name).slice(0, 120),
+          price: String(g?.price ?? "").slice(0, 24),
+          why,
+          search: String(g.search).slice(0, 160),
+        });
+      }
+    }
+    const clean = { intro: String(parsed?.intro ?? "").slice(0, 400), gifts };
     if (!clean.gifts.length) throw new Error("no gifts");
     return clean;
   }
@@ -183,7 +208,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   // ── 3. edge cache: same search → same answer, instantly ─────────────────
   const cache = caches.default;
   const cacheKey = new Request(
-    `${new URL(request.url).origin}/__cache/gift/v2?q=${encodeURIComponent(normalize(q))}`,
+    `${new URL(request.url).origin}/__cache/gift/v3?q=${encodeURIComponent(normalize(q))}`,
   );
   try {
     const hit = await cache.match(cacheKey);
