@@ -300,6 +300,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
       intro: "Our AI is a little busy right now, so here are hand-picked ideas that fit.",
       gifts: catalogPicks(q, budget, 4).map(({ name, price, why, search }) => ({ name, price, why, search })),
       fallback: true,
+      detail: [].concat(tried).slice(0, 4).map((x) => String(x).slice(0, 80)), // model + status only, never the key
     });
   }
 
