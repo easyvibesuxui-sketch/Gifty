@@ -137,7 +137,8 @@ function catalogPicks(q, budget, n, skip = new Set()) {
 
 // Ask one model; resolves with the cleaned result or throws a short, key-free reason.
 async function askModel(model, q, key, budget) {
-  for (const withThinking of [true, false]) {
+  let busyRetried = false;
+  for (let attempt = 0, withThinking = true; attempt < 3; attempt++) {
     const t0 = Date.now();
     let r;
     try {
@@ -163,7 +164,13 @@ async function askModel(model, q, key, budget) {
       let reason = "";
       try { reason = (await r.json())?.error?.status || ""; } catch {}
       // Only retry without thinking if the request shape was rejected.
-      if (r.status === 400 && withThinking) continue;
+      if (r.status === 400 && withThinking) { withThinking = false; continue; }
+      // Google overloaded / rate-limited: one quick retry on the same model.
+      if ([429, 500, 503].includes(r.status) && !busyRetried) {
+        busyRetried = true;
+        await new Promise((ok) => setTimeout(ok, 700));
+        continue;
+      }
       throw new Error(`${r.status}${reason ? " " + reason : ""}`);
     }
 
@@ -212,7 +219,7 @@ async function askModel(model, q, key, budget) {
     if (!clean.gifts.length) throw new Error("no gifts");
     return clean;
   }
-  throw new Error("400 rejected");
+  throw new Error("retries exhausted");
 }
 
 // Start the first model; if it is slow or fails, start the next one too.
@@ -287,7 +294,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   // ── 5. call Gemini from the edge (key stays server-side) ───────────────
   const models = env.GEMINI_MODEL
     ? [env.GEMINI_MODEL]
-    : ["gemini-3.5-flash-lite", "gemini-3.8-flash"];
+    : ["gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-3.5-flash"];
 
   const budget = budgetOf(q);
   let result;
