@@ -7,6 +7,7 @@ Reads data/products.py and writes:
   public/data/products.json        the catalogue as JSON (for the homepage / AI later)
   public/sitemap.xml               every page in public/
   lib/catalog.js                   compact catalogue imported by functions/api/gift.js
+  public/index.html (PROD block)   the homepage "Curated" grid (HOMEPAGE_PICKS)
 
 Styles come from public/blog.html so the guides always match the site design.
 Run after editing data/products.py:  python3 scripts/build_catalog.py
@@ -93,6 +94,45 @@ GUIDES = [
     ("housewarming-gifts", "occasion", "Housewarming", lambda p: "housewarming" in p["tags"],
      "Housewarming Gifts", "Gifts that help a new place feel like home from day one."),
 ]
+# Homepage "Curated right now" grid, in this order. Filters: under50, luxury ($100+), her, him.
+HOMEPAGE_PICKS = [
+    ("Ember Mug 2 (10 oz)", "Best seller"), ("Kindle Paperwhite", ""), ("Diptyque Baies Candle", "Editor's pick"),
+    ("LEGO Bonsai Tree", "Trending"), ("Fujifilm Instax Mini 12", ""), ("Theragun Mini", ""),
+    ("Lodge 12\" Cast Iron Skillet", "Under $50"), ("Sony WH-1000XM5 Headphones", ""),
+    ("Barefoot Dreams CozyChic Throw", ""), ("Leatherman Wave+ Multi-Tool", ""),
+    ("Tea Forte Loose Tea Sampler", ""), ("Bellroy Slim Sleeve Wallet", ""),
+]
+
+# Hand-written, sectioned guides: (slug, title, h1 html, intro, [(section, blurb, [product names])]).
+EDITORIALS = [
+    ("christmas-gifts", "Christmas Gift Guide", "The Christmas <em>gift guide</em>",
+     "Forty-odd gifts we would actually be happy to unwrap — sorted by who they are for, from stocking stuffers to the big one under the tree.",
+     [
+        ("For her", "Cosy, beautiful and genuinely useful — for partners, mums, sisters and friends.",
+         ["Barefoot Dreams CozyChic Throw", "Diptyque Baies Candle", "Kindle Paperwhite", "Slip Silk Pillowcase",
+          "Kendra Scott Elisa Pendant Necklace", "Vitruvi Stone Diffuser", "UGG Scuffette II Slippers"]),
+        ("For him", "Practical upgrades he will use every week (and quietly love).",
+         ["Leatherman Wave+ Multi-Tool", "Bellroy Slim Sleeve Wallet", "Sony WH-1000XM5 Headphones",
+          "ThermoWorks Thermapen ONE", "Glencairn Whisky Glass (Set of 2)", "YETI Rambler 20 oz Tumbler",
+          "Solo Stove Ranger 2.0 Fire Pit"]),
+        ("For mom & dad", "Thoughtful gifts for the people who are impossible to buy for.",
+         ["Aura Carver Digital Photo Frame", "Ember Mug 2 (10 oz)", "Le Creuset Signature Dutch Oven (5.5 qt)",
+          "Audible Gift Membership", "Celestron Nature DX 8x42 Binoculars", "AeroGarden Harvest"]),
+        ("For kids", "Toys that get played with long after Boxing Day.",
+         ["Magna-Tiles 32-Piece Set", "LEGO Classic Large Creative Brick Box", "Yoto Mini Player",
+          "Snap Circuits Jr.", "National Geographic Rock Tumbler Kit", "Micro Kickboard Maxi Scooter"]),
+        ("For teens", "The gifts teenagers actually ask for.",
+         ["Fujifilm Instax Mini 12", "Apple AirPods Pro 2", "Govee RGB LED Strip Lights",
+          "JBL Flip 6 Bluetooth Speaker", "Nintendo Switch OLED", "Stanley Quencher H2.0 40 oz"]),
+        ("Stocking stuffers under $25", "Small, clever and fun to find on Christmas morning.",
+         ["Laneige Lip Sleeping Mask", "Glocusent LED Neck Reading Light", "Exploding Kittens Card Game",
+          "Carhartt Acrylic Watch Hat", "Kitsch Satin Pillowcase", "Microplane Classic Zester",
+          "Squishmallows 16\" Plush", "KONG Classic Dog Toy"]),
+        ("For the whole family", "Gifts that bring everyone together after dinner.",
+         ["Catan Board Game", "Ticket to Ride Board Game", "Codenames", "Nespresso Vertuo Pop"]),
+     ]),
+]
+
 GROUPS = [("person", "By person"), ("interest", "By interest"),
           ("budget", "By budget"), ("occasion", "By occasion")]
 
@@ -348,6 +388,46 @@ def guide_page(g, items, counts):
     return page(f"{title} ({YEAR}): {len(items)} Ideas They'll Love — Gifty", desc, path, body, now=True, jsonld=ld)
 
 
+def editorial_page(ed):
+    slug, title, h1, intro, sections = ed
+    path = f"/gifts/{slug}"
+    byname = {p["name"]: p for p in PRODUCTS}
+    blocks, allp = [], []
+    for sec, blurb, names in sections:
+        missing = [n for n in names if n not in byname]
+        if missing:
+            sys.exit(f"{slug}: unknown products {missing}")
+        items = [byname[n] for n in names]
+        allp += items
+        blocks.append(f'<h2 class="sec-t">{e(sec)}</h2>\n<p class="sub" style="color:var(--cream-45);margin:-6px 0 20px">{e(blurb)}</p>\n'
+                      f'<div class="ggrid">\n{chr(10).join(card(p) for p in items)}\n</div>')
+    toc = "".join(f'<a class="pill" href="#s{i}">{e(s[0])}</a>' for i, s in enumerate(sections))
+    blocks = [b.replace('<h2 class="sec-t">', f'<h2 class="sec-t" id="s{i}">', 1) for i, b in enumerate(blocks)]
+    others = "".join(f'<a class="pill" href="/gifts/{x[0]}">{e(x[4])}</a>' for x in GUIDES
+                     if x[0] in ("for-her", "for-him", "for-kids", "for-teens", "under-25", "under-50", "luxury-gifts"))
+    body = f"""<header class="phead">
+  <div class="kicker">{YEAR} gift guide &middot; {len(allp)} ideas</div>
+  <h1>{h1}</h1>
+  <p class="sub">{e(intro)}</p>
+</header>
+<main id="main">
+<div class="wrap wide">
+  <div class="ask rv"><p><b>Still stuck on someone?</b> Describe them and Gifty's AI picks gifts in seconds.</p>
+    <a class="btn btn-fill" href="/#finder">Ask Gifty &rarr;</a></div>
+  <div class="related">{toc}</div>
+  {chr(10).join(blocks)}
+  <p class="note">Prices are approximate and change often — check Amazon for today's price and delivery dates. Links are affiliate links.</p>
+  <h2 class="sec-t">More gift guides</h2>
+  <div class="related">{others}<a class="pill" href="/gifts/">All gift guides</a></div>
+</div>
+</main>"""
+    ld = {"@context": "https://schema.org", "@type": "ItemList", "name": f"{title} {YEAR}",
+          "url": SITE + path, "numberOfItems": len(allp),
+          "itemListElement": [{"@type": "ListItem", "position": i + 1, "name": p["name"]} for i, p in enumerate(allp)]}
+    desc = f"The {YEAR} {title.lower()}: {len(allp)} hand-picked gifts for her, him, parents, kids and teens, plus stocking stuffers under $25."
+    return page(f"{title} {YEAR}: {len(allp)} Gifts Worth Unwrapping — Gifty", desc, path, body, now=True, jsonld=ld)
+
+
 def hub_page(counts):
     secs = []
     for key, name in GROUPS:
@@ -371,12 +451,40 @@ def hub_page(counts):
 <div class="wrap wide">
   <div class="ask rv"><p><b>Not sure where to start?</b> Tell Gifty about them in one sentence.</p>
     <a class="btn btn-fill" href="/#finder">Ask Gifty &rarr;</a></div>
+  <h2 class="sec-t">Seasonal</h2>
+  <div class="hubgrid">{"".join(f'<a class="hub rv" href="/gifts/{x[0]}">{icon("gift", 30)}<span>{e(x[1])} {YEAR}<small>{sum(len(s[2]) for s in x[4])} ideas</small></span></a>' for x in EDITORIALS)}</div>
   {chr(10).join(secs)}
 </div>
 </main>"""
     return page(f"Gift Ideas for Everyone ({YEAR}) — Gifty",
                 f"{len(PRODUCTS)} hand-picked gift ideas sorted by person, interest, budget and occasion. Or ask Gifty's AI for ideas made for one specific person.",
                 "/gifts/", body, now=True)
+
+
+def homepage():
+    rows = []
+    for name, badge in HOMEPAGE_PICKS:
+        p = next((x for x in PRODUCTS if x["name"] == name), None)
+        if not p:
+            sys.exit(f"HOMEPAGE_PICKS: no product named {name!r}")
+        tags = set(p["tags"])
+        f = ["all"]
+        if p["price"] <= 50: f.append("under50")
+        if p["price"] >= 100: f.append("luxury")
+        if tags & {"her", "mom"}: f.append("her")
+        if tags & {"him", "dad"}: f.append("him")
+        k = kind(p)
+        rows.append({"i": icon(k, 64), "tag": badge, "cat": LABELS.get(k, "Gift"), "nm": p["name"],
+                     "ds": p["why"], "pr": f"~${p['price']}", "t": f, "q": p["q"]})
+    idx = PUBLIC / "index.html"
+    src = idx.read_text()
+    new, n = re.subn(r"/\* PROD:START.*?/\* PROD:END \*/",
+                     lambda _: "/* PROD:START — generated by scripts/build_catalog.py */\nconst PROD="
+                     + json.dumps(rows, ensure_ascii=False, indent=0).replace("</", "<\\/") + ";\n/* PROD:END */",
+                     src, flags=re.S)
+    if n != 1:
+        sys.exit("index.html: PROD:START/PROD:END markers not found")
+    idx.write_text(new)
 
 
 def sitemap():
@@ -411,6 +519,8 @@ def main():
     for g in GUIDES:
         items = sorted((p for p in PRODUCTS if g[3](p)), key=lambda p: (p["price"], p["name"]))
         (out / f"{g[0]}.html").write_text(guide_page(g, items, counts))
+    for ed in EDITORIALS:
+        (out / f"{ed[0]}.html").write_text(editorial_page(ed))
     (out / "index.html").write_text(hub_page(counts))
     (PUBLIC / "data").mkdir(exist_ok=True)
     (PUBLIC / "data" / "products.json").write_text(json.dumps(
@@ -421,6 +531,7 @@ def main():
         "// GENERATED by scripts/build_catalog.py from data/products.py — do not edit.\n"
         "// [id, name, approx USD price, Amazon search query, tags, why]\n"
         "export default " + json.dumps(compact, ensure_ascii=False) + ";\n")
+    homepage()
     n = sitemap()
     print(f"{len(PRODUCTS)} products, {len(GUIDES)} guides, sitemap {n} urls")
     for g in GUIDES:

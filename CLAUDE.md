@@ -70,6 +70,10 @@ and zone `askgifty.com` (`b20d80f8e5802e9ce1cd4eb37c1f37df`: DNS, Email Routing,
   `scripts/build_catalog.py`, then run `python3 scripts/build_catalog.py` and commit
   the generated files. The build fails if a guide has < 6 products.
 - Guide pages take their CSS from `public/blog.html`, so design changes there carry over.
+- `EDITORIALS` in the build script = hand-written sectioned guides (e.g. `/gifts/christmas-gifts`):
+  sections list products by exact name; the build fails on unknown names.
+- The homepage "Curated right now" grid is generated too: `HOMEPAGE_PICKS` → the
+  `/* PROD:START */ … /* PROD:END */` block in `public/index.html` (don't hand-edit that block).
 - Products are real, well-known items; prices are approximate (shown as "~$40").
   Links are Amazon searches with `tag=nathan120e-20` (no PA-API yet — it needs 3 sales first).
 - AI search uses this catalogue (see Gemini below). Next: more products; real product
@@ -157,6 +161,8 @@ for p in /.dev.vars /wrangler.toml /CLAUDE.md; do curl -sL https://askgifty.com$
 
 ## Not done yet
 
-- Homepage "Curated" grid is still 8 hard-coded items with emoji icons (`PROD` in index.html);
-  should come from the catalogue with outline icons
+- Thin categories (photo, drinks, pets ≤ 6 products) — add products to `data/products.py`
+- Blog filter buttons on /blog don't filter; blog posts 1–3 are old generic articles
+- 2026-11: the Cloudflare credential in the environment returns "Authentication error" for
+  Pages/DNS/KV (token valid but no permissions) — owner must fix it before any API work
 - Hero video master (14MB, 1080p) is kept locally in `.old-design/`, not in git
