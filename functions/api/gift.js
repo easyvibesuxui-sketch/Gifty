@@ -87,6 +87,8 @@ const SYNONYMS = {
   music: "music", guitar: "music", vinyl: "music", musician: "music",
   dog: "pets", cat: "pets", pet: "pets", pets: "pets", puppy: "pets",
   photo: "photo", photos: "photo", photography: "photo", camera: "photo",
+  photographer: "photo", instagram: "photo", beer: "drinks", bartender: "drinks", bar: "drinks",
+  cats: "pets", dogs: "pets", kitten: "pets", birds: "garden", birdwatching: "garden", piano: "music", singer: "music",
   wine: "drinks", whiskey: "drinks", whisky: "drinks", cocktail: "drinks", cocktails: "drinks",
   fashion: "fashion", style: "fashion", jewelry: "fashion",
   hike: "outdoors", hiking: "outdoors", camping: "outdoors", camp: "outdoors", fishing: "outdoors", fish: "outdoors",
@@ -97,7 +99,8 @@ const RECIPIENTS = new Set(["dad", "mom", "her", "him", "kids", "teens", "cowork
 // Words that point at specific products by name.
 const HINTS = { fishing: "spinning", fish: "spinning", golf: "golf", pizza: "pizza", yoga: "yoga",
   camera: "camera", photography: "camera", whiskey: "whisk", whisky: "whisk", wine: "corkscrew",
-  lego: "lego", knitting: "craft", vinyl: "turntable", espresso: "espresso", tea: "tea", dog: "dog" };
+  lego: "lego", knitting: "craft", vinyl: "turntable", espresso: "espresso", tea: "tea", dog: "dog",
+  dogs: "dog", cat: "cat\\b", cats: "cat\\b", kitten: "cat\\b", whiskey: "whisk", photographer: "camera" };
 const DEFAULT_IDS = ["Ember Mug 2", "Kindle Paperwhite", "Fujifilm Instax Mini 12", "Diptyque Baies Candle"]
   .map((n) => CATALOG.find((c) => c[1].startsWith(n))?.[0]).filter((x) => x !== undefined);
 
@@ -113,7 +116,8 @@ function catalogPicks(q, budget, n, skip = new Set()) {
     const ct = c[4].split(" ");
     const name = c[1].toLowerCase();
     return ct.reduce((s, t) => s + (tags.has(t) ? (RECIPIENTS.has(t) ? 1 : 3) : 0), 0)
-      + hints.filter((h) => name.includes(h)).length * 5;
+      + hints.filter((h) => new RegExp(`\\b${h}`).test(name)).length * 5
+      - (ct.includes("kids") && !tags.has("kids") ? 2 : 0);     // no toys unless a child is mentioned
   };
   const ranked = pool.map((c) => ({ c, s: score(c) })).filter((x) => x.s > 0)
     .sort((a, b) => b.s - a.s || a.c[0] - b.c[0]).map((x) => x.c);
@@ -259,7 +263,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   // ── 3. edge cache: same search → same answer, instantly ─────────────────
   const cache = caches.default;
   const cacheKey = new Request(
-    `${new URL(request.url).origin}/__cache/gift/v4?q=${encodeURIComponent(normalize(q))}`,
+    `${new URL(request.url).origin}/__cache/gift/v5?q=${encodeURIComponent(normalize(q))}`,
   );
   try {
     const hit = await cache.match(cacheKey);

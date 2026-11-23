@@ -77,6 +77,10 @@ GUIDES = [
      "Gifts for Music Lovers", "Speakers, turntables and instruments for people who always have a song playing."),
     ("for-outdoor-lovers", "interest", "Outdoor Lovers", lambda p: "outdoors" in p["tags"],
      "Gifts for Outdoor Lovers", "Gear for hikers, campers, anglers and golfers."),
+    ("for-photographers", "interest", "Photographers", lambda p: "photo" in p["tags"],
+     "Gifts for Photographers", "Instant cameras, printers and clever accessories for anyone who loves taking pictures."),
+    ("for-wine-and-whiskey-lovers", "interest", "Wine & Whiskey Lovers", lambda p: "drinks" in p["tags"],
+     "Gifts for Wine & Whiskey Lovers", "Glassware, gadgets and kits for the home bar and the wine rack."),
     ("for-pet-lovers", "interest", "Pet Lovers", lambda p: "pets" in p["tags"],
      "Gifts for Pet Lovers", "Gifts for the pet — and for the person who loves them."),
     # by budget
@@ -106,7 +110,7 @@ HOMEPAGE_PICKS = [
 # Hand-written, sectioned guides: (slug, title, h1 html, intro, [(section, blurb, [product names])]).
 EDITORIALS = [
     ("christmas-gifts", "Christmas Gift Guide", "The Christmas <em>gift guide</em>",
-     "Forty-odd gifts we would actually be happy to unwrap — sorted by who they are for, from stocking stuffers to the big one under the tree.",
+     "Nearly fifty gifts we would actually be happy to unwrap — sorted by who they are for, from stocking stuffers to the big one under the tree.",
      [
         ("For her", "Cosy, beautiful and genuinely useful — for partners, mums, sisters and friends.",
          ["Barefoot Dreams CozyChic Throw", "Diptyque Baies Candle", "Kindle Paperwhite", "Slip Silk Pillowcase",
@@ -117,7 +121,8 @@ EDITORIALS = [
           "Solo Stove Ranger 2.0 Fire Pit"]),
         ("For mom & dad", "Thoughtful gifts for the people who are impossible to buy for.",
          ["Aura Carver Digital Photo Frame", "Ember Mug 2 (10 oz)", "Le Creuset Signature Dutch Oven (5.5 qt)",
-          "Audible Gift Membership", "Celestron Nature DX 8x42 Binoculars", "AeroGarden Harvest"]),
+          "Audible Gift Membership", "Celestron Nature DX 8x42 Binoculars", "AeroGarden Harvest",
+          "Bird Buddy Smart Bird Feeder", "Canon SELPHY CP1500 Photo Printer"]),
         ("For kids", "Toys that get played with long after Boxing Day.",
          ["Magna-Tiles 32-Piece Set", "LEGO Classic Large Creative Brick Box", "Yoto Mini Player",
           "Snap Circuits Jr.", "National Geographic Rock Tumbler Kit", "Micro Kickboard Maxi Scooter"]),
@@ -127,7 +132,8 @@ EDITORIALS = [
         ("Stocking stuffers under $25", "Small, clever and fun to find on Christmas morning.",
          ["Laneige Lip Sleeping Mask", "Glocusent LED Neck Reading Light", "Exploding Kittens Card Game",
           "Carhartt Acrylic Watch Hat", "Kitsch Satin Pillowcase", "Microplane Classic Zester",
-          "Squishmallows 16\" Plush", "KONG Classic Dog Toy"]),
+          "Squishmallows 16\" Plush", "KONG Classic Dog Toy",
+          "Fujifilm Instax Mini Film (40 Sheets)", "Vacu Vin Wine Saver Pump", "W&P Carry On Cocktail Kit"]),
         ("For the whole family", "Gifts that bring everyone together after dinner.",
          ["Catan Board Game", "Ticket to Ride Board Game", "Codenames", "Nespresso Vertuo Pop"]),
      ]),

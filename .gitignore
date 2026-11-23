@@ -21,3 +21,4 @@ Thumbs.db
 
 # local-only archive (old design, 14MB video master)
 .old-design/
+__pycache__/
