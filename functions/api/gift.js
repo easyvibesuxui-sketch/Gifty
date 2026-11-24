@@ -14,7 +14,8 @@ const MAX_QUERY = 400;          // characters
 const RATE_LIMIT = 12;          // requests
 const RATE_WINDOW = 60;         // seconds
 const ATTEMPT_MS = 12000;       // per-model timeout
-const HEDGE_MS = 6000;          // start the backup model if the first hasn't answered by now
+const HEDGE_MS = 4000;          // start the backup model if the first hasn't answered by now
+const DEADLINE_MS = 8000;       // total wait before answering from the catalogue instead
 const CACHE_TTL = 86400;        // identical searches are served from the edge cache for a day
 
 // Our hand-picked catalogue (generated from data/products.py by scripts/build_catalog.py).
@@ -299,7 +300,11 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const budget = budgetOf(q);
   let result;
   try {
-    result = await hedged(models, (m) => askModel(m, q, env.GEMINI_KEY, budget));
+    // Never keep a visitor waiting more than DEADLINE_MS: past that, answer from the catalogue.
+    let timer;
+    const deadline = new Promise((_, no) => { timer = setTimeout(() => no([`deadline ${DEADLINE_MS}ms`]), DEADLINE_MS); });
+    result = await Promise.race([hedged(models, (m) => askModel(m, q, env.GEMINI_KEY, budget)), deadline]);
+    clearTimeout(timer);
   } catch (tried) {
     // Every model failed: answer with hand-picked gifts instead of an error.
     console.error("gemini failed:", [].concat(tried).join(" | "));

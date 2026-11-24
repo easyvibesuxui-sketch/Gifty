@@ -140,7 +140,8 @@ npx wrangler pages secret put GEMINI_KEY --project-name gifty
 
 `functions/api/gift.js` starts `gemini-3.5-flash-lite`; if it hasn't answered in
 6s (or fails) it also starts `gemini-3.8-flash`, then `gemini-3.5-flash`, and returns whichever
-answers first (12s timeout per call). A 429/500/503 gets one quick retry on the same model.
+answers first (backup starts after 4s; 12s per call). After 8s total (`DEADLINE_MS`) it answers
+from the catalogue instead. A 429/500/503 gets one quick retry on the same model.
 Google's 503 UNAVAILABLE / 429 RESOURCE_EXHAUSTED are common (Nov 2026); the fallback
 response carries `detail` (model + status only) so failures are visible without logs. `thinkingLevel: LOW`, `responseMimeType: application/json`.
 Override the model with a `GEMINI_MODEL` env var.
